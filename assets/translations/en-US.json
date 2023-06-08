@@ -1,0 +1,51 @@
+{
+  "Tasks": "Tasks",
+  "Manage your tasks easily."  : "Manage your tasks easily.",
+
+  "Set your goals."  : "Set your goals.",
+  "once you write down your goals, you will achieve your dreams."  : "once you write down your goals, you will achieve your dreams.",
+  "Create New Task."  : "Create New Task.",
+  "separate them into categories and identify pinned tasks, add counter, add timer or other options."  : "separate them into categories and identify pinned tasks, add counter, add timer or other options.",
+  "Manage tasks easily."  : "Manage tasks easily.",
+  "you will find it easily to organize them and comfortable while doing tasks."  : "you will find it easily to organize them and comfortable while doing tasks.",
+  "Go ahead!"  : "Go ahead!",
+  "what are you waiting for? go ahead and achieve your dreams."  : "what are you waiting for? go ahead and achieve your dreams.",
+  "Skip"  : "Skip",
+  "Create New Task"  : "Create New Task",
+
+  "Read more"  : "Read more",
+  "   Read less"  : "   Read less",
+
+  "Settings"  : "Settings",
+  "Rate" : "Rate",
+  "Reports"  : "Reports",
+  "Share"  : "Share",
+  "About"  : "About",
+
+  "Create Task"  : "Create Task",
+  "Update Task"  : "Update Task",
+  "Task Name"  : "Task Name",
+  "Description"  : "Description",
+  "Category"  : "Category",
+  "Change Time" : "Change Time",
+  "With Timer"  : "With Timer",
+  "Pinned Task"  : "Pinned Task",
+  "Nested Task"  : "Nested Task",
+  "With Counter"  : "With Counter",
+  "Specific Date"  : "Specific Date",
+  "Sebha"  : "Sebha",
+  "Choose Parent Task"  : "Choose Parent Task",
+
+  "Time" : "Selected Time:",
+  "Date" : "Selected Date:",
+
+  "Sun"  : "Sun",
+  "Mon"  : "Mon",
+  "Tue"  : "Tue",
+  "Wed"  : "Wed",
+  "Thu"  : "Thu",
+  "Fri"  : "Fri",
+  "Sat"  : "Sat",
+
+  "items"  : "items"
+}

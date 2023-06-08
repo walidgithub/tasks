@@ -1,0 +1,51 @@
+{
+  "Tasks": "Tasks",
+  "Manage your tasks easily."  : "يمكنك إدارة مهماتك بسهولة.",
+
+  "Set your goals."  : "Set your goals.",
+  "once you write down your goals, you will achieve your dreams."  : "بمجرد أن تدون أهدافك، ستتمكن من تحقيقها.",
+  "Create New Task."  : "انشأ مهمة جديدة.",
+  "separate them into categories and identify pinned tasks, add counter, add timer or other options."  : "يمكنك تقسيمهم لفئات وتحدد المهمات المثبتة يوميا أو استخدام عداد أو مؤقت وأدوات اخرى.",
+  "Manage tasks easily."  : "يمكنك إدارة مهماتك بسهولة.",
+  "you will find it easily to organize them and comfortable while doing tasks."  : "ستجد تنظيم مهماتك سهلا ومريح.",
+  "Go ahead!"  : "استمر!",
+  "what are you waiting for? go ahead and achieve your dreams."  : "ماذا تنتظر؟ استمر فى تحقيق اهدافك.",
+  "Skip"  : "تخطى",
+  "Create New Task"  : "انشأ مهمة جديدة",
+
+  "Read more"  : "المزيد",
+  "   Read less"  : "   أقل",
+
+  "Settings"  : "اعدادات",
+  "Rate" : "تقييم",
+  "Reports"  : "تقارير",
+  "Share"  : "مشاركة",
+  "About"  : "من نحن",
+
+  "Create Task"  : "انشاء مهمة",
+  "Update Task"  : "تعديل مهمة",
+  "Task Name"  : "اسم المهمة",
+  "Description"  : "الوصف",
+  "Category"  : "الفئة",
+  "Change Time" : "تغيير الوقت",
+  "With Timer"  : "مؤقت",
+  "Pinned Task"  : "مهمة مثبتة",
+  "Nested Task"  : "مهمة تابعة لـ",
+  "With Counter"  : "استخدام عداد",
+  "Specific Date"  : "تاريخ محدد",
+  "Sebha"  : "سبحة",
+  "Choose Parent Task"  : "اختار المهمة",
+
+  "Time" : ":الوقت المختار",
+  "Date" : ":التاريخ المختار",
+
+  "Sun"  : "الأحد",
+  "Mon"  : "الاثنين",
+  "Tue"  : "الثلاثاء",
+  "Wed"  : "الأربعاء",
+  "Thu"  : "الخميس",
+  "Fri"  : "الجمعة",
+  "Sat"  : "السبت",
+
+  "items"  : "عناصر"
+}
