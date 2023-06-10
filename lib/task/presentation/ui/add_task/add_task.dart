@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +54,7 @@ class _AddTaskState extends State<AddTask> {
     });
   }
 
-  List<DropdownMenuItem<String>>? tasksItems;
+  List<String>? tasksItemsScreen;
 
   TimeOfDay _timeOfDay = TimeOfDay.now();
 
@@ -136,7 +138,9 @@ class _AddTaskState extends State<AddTask> {
 
   bool _nested = false;
 
-  void _changeToNested(value) {
+  Future<void> _changeToNested(value) async {
+    await AddTaskCubit.get(context).loadTasksNames();
+
     setState(() {
       _nested = value;
       if (_nested) {
@@ -185,7 +189,6 @@ class _AddTaskState extends State<AddTask> {
           backgroundColor: ColorManager.darkPrimary,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            // mainAxisSize: MainAxisSize.min,
             children: [
               Text(AppStrings.create.tr()),
             ],
@@ -298,25 +301,16 @@ class _AddTaskState extends State<AddTask> {
   }
 
   Widget bodyContent() {
-    return BlocProvider(
-  create: (context) => sl<AddTaskCubit>(),
-  child: BlocConsumer<AddTaskCubit, AddTaskState>(
+    return BlocConsumer<AddTaskCubit, AddTaskState>(
       listener: (context, state) {
-        if (state is LoadingTasksState) {
+        if (state is LoadingTasksNamesState) {
 
-          AddTaskCubit.get(context).getTasksNames();
+        } else if (state is AddTaskInitial) {
 
-        } else if (state is LoadedTasksState) {
+        } else if (state is ErrorLoadingTasksNamesState) {
 
-          tasksItems = AddTaskCubit.get(context)
-              .tasksNames
-              .map((value) =>
-              DropdownMenuItem<String>(value: value, child: Text(value)))
-              .toList();
-
-          if (kDebugMode) {
-            print('tasksItems $tasksItems');
-          }
+        } else if (state is LoadedTasksNamesState) {
+          tasksItemsScreen = AddTaskCubit.get(context).tasksNames;
         }
       },
       builder: (context, state) {
@@ -536,16 +530,12 @@ class _AddTaskState extends State<AddTask> {
                                 borderRadius: BorderRadius.circular(10),
                                 itemHeight: 65.h,
                                 underline: Container(),
-                                items: tasksItems
-                                    ?.map((value) => DropdownMenuItem(
-                                          value: value,
-                                          child: Text(
-                                            'hhhhhhhh',
-                                            style: TextStyle(
-                                                color: ColorManager.darkPrimary),
-                                          ),
-                                        ))
-                                    .toList(),
+                                items: tasksItemsScreen?.map((item) {
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child: Text(item),
+                                  );
+                                }).toList(),
                                 onChanged: (selectedAccountType) {
                                   setState(() {
                                     _selectedTask = selectedAccountType;
@@ -638,8 +628,7 @@ class _AddTaskState extends State<AddTask> {
           ),
         );
       },
-    ),
-);
+    );
   }
 
   // Widget days(String dayName, bool checkValue, int index) {

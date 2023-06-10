@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tasks/task/presentation/di/di.dart';
+import 'package:tasks/task/presentation/router/app_router.dart';
 import 'package:tasks/task/presentation/ui/add_task/add_task.dart';
 import 'package:tasks/task/presentation/ui/add_task/cubit/add_task_cubit.dart';
 import 'package:tasks/task/presentation/ui/homepage/homepage_view.dart';
@@ -66,17 +67,23 @@ class _MyAppState extends State<MyApp> {
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
-          return MaterialApp(
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-            debugShowCheckedModeBanner: false,
-            title: 'Tasks',
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            themeMode: _themeManager.themeMode,
-            home: AddTask(),
-          );
+          return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                    create: (context) => sl<AddTaskCubit>())
+              ],
+              child: MaterialApp(
+                localizationsDelegates: context.localizationDelegates,
+                supportedLocales: context.supportedLocales,
+                locale: context.locale,
+                debugShowCheckedModeBanner: false,
+                title: 'Tasks',
+                theme: lightTheme,
+                darkTheme: darkTheme,
+                themeMode: _themeManager.themeMode,
+                onGenerateRoute: RouteGenerator.getRoute,
+                initialRoute: Routes.addTask,
+              ));
         });
   }
 }

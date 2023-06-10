@@ -13,7 +13,6 @@ class NestedTaskModel {
   int? counter;
   int? counterVal;
   int? specificDate;
-  String? pinnedDay;
 
   NestedTaskModel({
     this.id,
@@ -30,7 +29,6 @@ class NestedTaskModel {
     this.wheel,
     this.counterVal,
     this.specificDate,
-    this.pinnedDay,
   });
 
   Map<String, dynamic> toMap() {
@@ -49,7 +47,6 @@ class NestedTaskModel {
     data["counter"] = counter;
     data["counterVal"] = counterVal;
     data["specificDate"] = specificDate;
-    data["pinnedDay"] = pinnedDay;
     return data;
   }
 
@@ -68,7 +65,6 @@ class NestedTaskModel {
     counter = map["counter"];
     counterVal = int.parse(map["counterVal"]);
     specificDate = map["specificDate"];
-    pinnedDay = map["pinnedDay"];
   }
 }
 

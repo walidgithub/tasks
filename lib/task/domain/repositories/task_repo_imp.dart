@@ -2,19 +2,21 @@ import 'package:tasks/task/domain/entities/nested_task_model.dart';
 import 'package:tasks/task/domain/entities/task_days_model.dart';
 
 import '../../data/data_sources/local/task_repo.dart';
+import '../../presentation/di/di.dart';
 import '../../shared/preferences/dbHelper.dart';
 import '../entities/daily_task_model.dart';
 
 class TaskRepoImp extends TaskRepository {
   final DbHelper _dbHelper;
 
-  TaskRepoImp(this._dbHelper) {
+  TaskRepoImp(this._dbHelper){
     _dbHelper.database;
   }
 
   @override
   Future<void> addTask(DailyTaskModel dailyTaskModel) async {
     await _dbHelper.createTask(dailyTaskModel);
+    await getTasksNames();
   }
 
   @override

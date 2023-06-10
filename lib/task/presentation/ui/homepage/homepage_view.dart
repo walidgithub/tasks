@@ -6,11 +6,13 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:tasks/task/presentation/ui/add_task/cubit/add_task_cubit.dart';
 import 'package:tasks/task/shared/constant/assets_manager.dart';
 import '../../../shared/constant/constant_values_manager.dart';
 import '../../../shared/style/colors_manager.dart';
 import '../../../shared/component/home_clipper.dart';
 import '../../../shared/component/nav_bar.dart';
+import '../../router/app_router.dart';
 
 class HomePageView extends StatefulWidget {
   const HomePageView({Key? key}) : super(key: key);
@@ -34,7 +36,10 @@ class _HomePageViewState extends State<HomePageView> {
       drawer: const NavBar(),
       body: bodyContent(size),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async{
+          await AddTaskCubit.get(context).getTasksNames();
+          Navigator.of(context).pushNamed(Routes.addTask);
+        },
         backgroundColor: ColorManager.darkPrimary,
         child: const Icon(Icons.add),
       ),

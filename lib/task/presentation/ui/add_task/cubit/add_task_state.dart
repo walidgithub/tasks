@@ -16,6 +16,20 @@ class NewTaskDaySavedState extends AddTaskState{}
 
 class LoadingTasksState extends AddTaskState{}
 class LoadedTasksState extends AddTaskState{}
+class ErrorLoadingTasksState extends AddTaskState{
+  String errorText;
+
+  ErrorLoadingTasksState(this.errorText);
+}
+
+
+class LoadingTasksNamesState extends AddTaskState{}
+class LoadedTasksNamesState extends AddTaskState{}
+class ErrorLoadingTasksNamesState extends AddTaskState{
+  String errorText;
+
+  ErrorLoadingTasksNamesState(this.errorText);
+}
 
 class UpdateTaskState extends AddTaskState{}
 

@@ -19,16 +19,16 @@ class ServiceLocator {
 
     sl.registerLazySingleton<SharedPreferences>(() => sharedPrefs);
 
+    // Task Cubit
+    sl.registerFactory(() => AddTaskCubit(sl()));
+
     // Theme
     sl.registerLazySingleton<ThemeManager>(() => ThemeManager());
 
     // dbHelper
-    sl.registerFactory<DbHelper>(() => DbHelper());
+    sl.registerLazySingleton<DbHelper>(() => DbHelper());
 
     // Task Repo
     sl.registerLazySingleton<TaskRepoImp>(() => TaskRepoImp(sl()));
-
-    // Task Cubit
-    sl.registerLazySingleton(() => AddTaskCubit(sl()));
   }
 }

@@ -17,7 +17,6 @@ class DailyTaskModel {
   int? counter;
   int? counterVal;
   int? specificDate;
-  String? pinnedDay;
 
   DailyTaskModel({
     this.id,
@@ -35,7 +34,6 @@ class DailyTaskModel {
     this.nestedVal,
     this.counterVal,
     this.specificDate,
-    this.pinnedDay,
   });
 
   Map<String, dynamic> toMap() {
@@ -55,7 +53,6 @@ class DailyTaskModel {
     data["counter"] = counter;
     data["counterVal"] = counterVal;
     data["specificDate"] = specificDate;
-    data["pinnedDay"] = pinnedDay;
     return data;
   }
 
@@ -75,7 +72,6 @@ class DailyTaskModel {
     counter = map["counter"];
     counterVal = map["counterVal"];
     specificDate = map["specificDate"];
-    pinnedDay = map["pinnedDay"];
   }
 }
 
