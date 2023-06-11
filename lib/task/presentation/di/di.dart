@@ -5,7 +5,8 @@ import '../../domain/repositories/task_repo_imp.dart';
 import '../../shared/preferences/app_pref.dart';
 import '../../shared/preferences/dbHelper.dart';
 import '../../shared/style/theme_manager.dart';
-import '../ui/add_task/cubit/add_task_cubit.dart';
+import '../ui/add_task/add_task_cubit/add_task_cubit.dart';
+import '../ui/homepage/home_cubit/home_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -19,8 +20,11 @@ class ServiceLocator {
 
     sl.registerLazySingleton<SharedPreferences>(() => sharedPrefs);
 
-    // Task Cubit
+    // Add Task Cubit
     sl.registerFactory(() => AddTaskCubit(sl()));
+
+    // Home Cubit
+    sl.registerFactory(() => HomeCubit(sl()));
 
     // Theme
     sl.registerLazySingleton<ThemeManager>(() => ThemeManager());

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
@@ -16,10 +15,8 @@ import '../../../shared/constant/strings_manager.dart';
 import '../../../shared/style/colors_manager.dart';
 
 import 'package:table_calendar/table_calendar.dart';
-
-import '../../di/di.dart';
-import 'cubit/add_task_cubit.dart';
-import 'cubit/add_task_state.dart';
+import 'add_task_cubit/add_task_cubit.dart';
+import 'add_task_cubit/add_task_state.dart';
 
 class AddTask extends StatefulWidget {
   String? editType;
@@ -31,6 +28,7 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
+
   var _selectedTask;
 
   int? _counterValue = 0;
@@ -139,7 +137,7 @@ class _AddTaskState extends State<AddTask> {
   bool _nested = false;
 
   Future<void> _changeToNested(value) async {
-    await AddTaskCubit.get(context).loadTasksNames();
+    // await AddTaskCubit.get(context).loadTasksNames();
 
     setState(() {
       _nested = value;
@@ -286,7 +284,6 @@ class _AddTaskState extends State<AddTask> {
                           await AddTaskCubit.get(context)
                               .addNewTask(dailyModel);
 
-                          print('done');
                         }
 
                         // --------------------------------------------------------------------------
@@ -304,8 +301,6 @@ class _AddTaskState extends State<AddTask> {
     return BlocConsumer<AddTaskCubit, AddTaskState>(
       listener: (context, state) {
         if (state is LoadingTasksNamesState) {
-
-        } else if (state is AddTaskInitial) {
 
         } else if (state is ErrorLoadingTasksNamesState) {
 

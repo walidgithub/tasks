@@ -5,33 +5,36 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../shared/constant/constant_values_manager.dart';
 import '../../../shared/constant/strings_manager.dart';
 import '../../../shared/style/colors_manager.dart';
+import '../../router/app_router.dart';
+import '../../router/arguments.dart';
 import '../daily_tasks/daily_tasks.dart';
 
 class TasksByCategory extends StatefulWidget {
-  const TasksByCategory({Key? key}) : super(key: key);
+  const TasksByCategory({Key? key, required this.arguments}) : super(key: key);
+
+  final TasksByCategoryArguments arguments;
 
   @override
   State<TasksByCategory> createState() => _TasksByCategoryState();
 }
 
 class _TasksByCategoryState extends State<TasksByCategory> {
-
-  DateTime today = DateTime.now();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: ColorManager.darkPrimary,
-          title:
-          Center(
+          title: Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('Relegion'),
+                Text(widget.arguments.category!.length > 8 && int.parse(widget.arguments.countOfItems.toString()) > 99 ? '${widget.arguments.category!.substring(0, 7)}..' : widget.arguments.category!.length > 10 ? '${widget.arguments.category!.substring(0, 7)}..' : widget.arguments.category!),
                 Row(
                   children: [
-                    Text('(10'),
+                    Text(
+                        int.parse(widget.arguments.countOfItems.toString()) > 99
+                            ? '(+99'
+                            : '(${widget.arguments.countOfItems}'),
                     SizedBox(
                       width: AppConstants.smallDistance,
                     ),
@@ -41,41 +44,38 @@ class _TasksByCategoryState extends State<TasksByCategory> {
               ],
             ),
           ),
-          leading:
-          Bounceable(
+          leading: Bounceable(
               duration: const Duration(milliseconds: 300),
-              onTap:() async {
-                await Future.delayed(Duration(milliseconds: 200));
+              onTap: () async {
+                await Future.delayed(const Duration(milliseconds: 200));
               },
               child: const Icon(Icons.keyboard_return)),
           actions: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Center(child: Text(today.toString().split(" ")[0])),
+              child: Center(
+                  child: Text(
+                      widget.arguments.tasksDate.toString().split(" ")[0])),
             ),
           ],
         ),
-        body: bodyContent()
-    );
+        body: bodyContent());
   }
 
-  Widget bodyContent(){
+  Widget bodyContent() {
     return SingleChildScrollView(
       child: Column(
         children: [
           Container(
-              padding: const EdgeInsets.fromLTRB(5,10,5,10),
-              child:
-              ListView.builder(
+              padding: const EdgeInsets.fromLTRB(5, 10, 5, 10),
+              child: ListView.builder(
                 scrollDirection: Axis.vertical,
-                // itemCount: taskslist.length,
-                itemCount: 1,
+                itemCount: widget.arguments.countOfItems,
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, int index) {
                   return Slidable(
-                    // key: ValueKey(taskslist[index]),
-                    key: ValueKey(1),
+                    key: ValueKey(widget.arguments.countOfItems! - index),
                     startActionPane: ActionPane(
                       motion: ScrollMotion(),
                       // dismissible: DismissiblePane(onDismissed: (){},),
@@ -110,23 +110,11 @@ class _TasksByCategoryState extends State<TasksByCategory> {
                     closeOnScroll: false,
                     child: Container(),
                     // child: DailyTasks(
-                    //   address: taskslist[index].taskName,
-                    //   description: taskslist[index].description,
-                    //   time: taskslist[index].time,
-                    //   timer: taskslist[index].timer,
-                    //   pinned: taskslist[index].pinned,
-                    //   counter: taskslist[index].counter,
-                    //   nested: taskslist[index].nested,
-                    //   wheel: taskslist[index].wheel,
-                    //   nestedVal: taskslist[index].nestedVal,
-                    //   counterVal: taskslist[index].counterVal,
-                    //   done: taskslist[index].done,
+                    //   arguments: DailyTasksArguments(),
                     // ),
                   );
                 },
-              )
-
-          )
+              ))
         ],
       ),
     );

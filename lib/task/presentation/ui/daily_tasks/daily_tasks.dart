@@ -11,23 +11,13 @@ import '../../../shared/constant/assets_manager.dart';
 import '../../../shared/constant/constant_values_manager.dart';
 import '../../../shared/constant/strings_manager.dart';
 import '../../../shared/style/colors_manager.dart';
+import '../../router/arguments.dart';
 
 class DailyTasks extends StatefulWidget {
 
-  String address;
-  String description;
-  String time;
-  bool timer;
-  bool pinned;
-  bool counter;
-  bool nested;
-  bool wheel;
-  double nestedVal;
-  int counterVal;
-  bool done;
+  final DailyTasksArguments arguments;
 
-  DailyTasks({required this.address, required this.description, required this.time,
-    required this.timer, required this.pinned, required this.counter, required this.nested, required this.wheel, required this.nestedVal, required this.counterVal, required this.done});
+  const DailyTasks({super.key, required this.arguments});
 
   @override
   State<DailyTasks> createState() => _DailyTasksState();
@@ -72,18 +62,18 @@ class _DailyTasksState extends State<DailyTasks> {
                               Column(
                                 children: [
                                   Text(
-                                    widget.address,
+                                    widget.arguments.taskName!,
                                     textAlign: TextAlign.left,
                                     style: TextStyle(fontSize: 18.sp),
                                   ),
-                                  widget.done ? Icon(Icons.done,color: ColorManager.blueColor,) : Container(),
+                                  widget.arguments.done != null ? Icon(Icons.done,color: ColorManager.blueColor,) : Container(),
                                 ],
                               ),
-                              widget.counter ?
+                              widget.arguments.counter != null ?
                               Bounceable(
                                 duration: const Duration(milliseconds: 100),
                                 onTap:() async {
-                                  await Future.delayed(Duration(milliseconds: 100));
+                                  await Future.delayed(const Duration(milliseconds: 100));
                                 },
                                 child: Container(
                                   width: 70.w,
@@ -105,7 +95,7 @@ class _DailyTasksState extends State<DailyTasks> {
                                     children: [
                                       const Icon(Icons.fingerprint_rounded),
                                       Text(
-                                        widget.counterVal.toString(),
+                                        widget.arguments.counterVal.toString(),
                                         textAlign: TextAlign.left,
                                         style: TextStyle(
                                             fontSize: 20.sp,
@@ -116,11 +106,11 @@ class _DailyTasksState extends State<DailyTasks> {
                                 ),
                               ):Container(),
 
-                              widget.wheel ?
+                              widget.arguments.wheel != null ?
                               Container(
                                   height: 100.h,
                                   width: 100.w,
-                                  padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                                   decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                           begin: Alignment.centerRight,
@@ -140,7 +130,7 @@ class _DailyTasksState extends State<DailyTasks> {
                                       },
                                       perspective: 0.005,
                                       diameterRatio: 1.2,
-                                      physics: FixedExtentScrollPhysics(),
+                                      physics: const FixedExtentScrollPhysics(),
                                       itemExtent: 40,
                                       childDelegate: ListWheelChildBuilderDelegate(
                                           childCount: 999,
@@ -151,14 +141,14 @@ class _DailyTasksState extends State<DailyTasks> {
                               Row(
                                 children: [
                                   Text(
-                                    widget.time,
+                                    widget.arguments.time!,
                                     textAlign: TextAlign.left,
                                     style: TextStyle(fontSize: 15.sp),
                                   ),
                                   SizedBox(
                                     width: AppConstants.smallDistance,
                                   ),
-                                  widget.timer ? const Icon(Icons.access_alarms_rounded, size: 15) : Container()
+                                  widget.arguments.timer != null ? const Icon(Icons.access_alarms_rounded, size: 15) : Container()
                                 ],
                               )
                             ],
@@ -167,7 +157,7 @@ class _DailyTasksState extends State<DailyTasks> {
                             height: AppConstants.smallDistance,
                           ),
                           ReadMoreText(
-                            widget.description,
+                            widget.arguments.description!,
                             style: TextStyle(
                                 fontSize: 15.sp, color: ColorManager.darkBasicOverlay),
                             trimLines: 1,
@@ -181,17 +171,17 @@ class _DailyTasksState extends State<DailyTasks> {
                     ),
                   ),
                   Expanded(
-                    flex: widget.nested ? 2 : 1,
+                    flex: widget.arguments.nested != null ? 2 : 1,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Bounceable(
                             duration: const Duration(milliseconds: 100),
                             onTap:() async {
-                              await Future.delayed(Duration(milliseconds: 100));
+                              await Future.delayed(const Duration(milliseconds: 100));
                             },
-                            child: SvgPicture.asset(widget.pinned ? ImageAssets.pin_icon : ImageAssets.unPin_icon,color: ColorManager.basic,width: 25.w)),
-                        widget.nested ? Column(
+                            child: SvgPicture.asset(widget.arguments.pinned != null ? ImageAssets.pin_icon : ImageAssets.unPin_icon,color: ColorManager.basic,width: 25.w)),
+                        widget.arguments.nested != null ? Column(
                           children: [
                             SizedBox(
                               height: AppConstants.smallDistance,
@@ -199,14 +189,14 @@ class _DailyTasksState extends State<DailyTasks> {
                             CircularPercentIndicator(
                               radius: 25.0.h,
                               lineWidth: 5.0.w,
-                              percent: widget.nestedVal / 100,
+                              percent: widget.arguments.nestedVal! / 100,
                               center: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Countup(
                                     begin: 0,
-                                    end: widget.nestedVal,
-                                    duration: Duration(seconds: 5),
+                                    end: widget.arguments.nestedVal!,
+                                    duration: const Duration(seconds: 5),
                                     style: TextStyle(
                                       fontSize: 10.sp,
                                     ),
@@ -226,7 +216,7 @@ class _DailyTasksState extends State<DailyTasks> {
                       ],
                     ),
                   ),
-                  widget.nested ?
+                  widget.arguments.nested != null ?
                   Expanded(
                     flex: 1,
                     child: Column(
@@ -235,7 +225,7 @@ class _DailyTasksState extends State<DailyTasks> {
                         Bounceable(
                             duration: const Duration(milliseconds: 300),
                             onTap:() async {
-                              await Future.delayed(Duration(milliseconds: 200));
+                              await Future.delayed(const Duration(milliseconds: 200));
                             },
                             child: Icon(Icons.arrow_circle_right_outlined,color: ColorManager.basic)),
                       ],

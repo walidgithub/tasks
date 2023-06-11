@@ -1,11 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tasks/task/presentation/ui/add_task/cubit/add_task_state.dart';
 
 import '../../../../domain/entities/daily_task_model.dart';
 import '../../../../domain/entities/task_days_model.dart';
 import '../../../../domain/repositories/task_repo_imp.dart';
-import '../../../../shared/preferences/dbHelper.dart';
-import '../../../di/di.dart';
+import 'add_task_state.dart';
 
 class AddTaskCubit extends Cubit<AddTaskState> {
   AddTaskCubit(this.taskRepoImp) : super(AddTaskInitial());
@@ -30,9 +28,6 @@ class AddTaskCubit extends Cubit<AddTaskState> {
 
   Future<List<String>> getTasksNames() async {
     final res = await taskRepoImp.getTasksNames();
-    for (var i = 0; i < res.length; i++) {
-      tasksNames.add(res[i].toString());
-    }
     return res;
   }
 
@@ -46,8 +41,8 @@ class AddTaskCubit extends Cubit<AddTaskState> {
     emit(NewTaskDaySavedState());
   }
 
-  Future<List<DailyTaskModel>> getAllTasks(String category) async {
-    final res = await taskRepoImp.getAllTasks('category');
+  Future<List<DailyTaskModel>> getAllTasks(String category, String date) async {
+    final res = await taskRepoImp.getAllTasks(category, date);
     return res;
   }
 }

@@ -7,7 +7,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:tasks/task/presentation/di/di.dart';
 import 'package:tasks/task/presentation/router/app_router.dart';
 import 'package:tasks/task/presentation/ui/add_task/add_task.dart';
-import 'package:tasks/task/presentation/ui/add_task/cubit/add_task_cubit.dart';
+import 'package:tasks/task/presentation/ui/add_task/add_task_cubit/add_task_cubit.dart';
+import 'package:tasks/task/presentation/ui/homepage/home_cubit/home_cubit.dart';
 import 'package:tasks/task/presentation/ui/homepage/homepage_view.dart';
 import 'package:tasks/task/presentation/ui/nested_details/nested_details.dart';
 import 'package:tasks/task/presentation/ui/on_boarding/onborading_view.dart';
@@ -48,9 +49,18 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
+  DateTime today = DateTime.now();
+  String searchByToday = '';
+
   @override
   void initState() {
     _themeManager.addListener(themeListener);
+
+    String originalDate = DateTime.parse(
+        today.toString().split(" ")[0]).toString();
+    print(originalDate);
+    searchByToday = originalDate.replaceFirst(RegExp(' '), 'T');
+
     super.initState();
   }
 
@@ -59,6 +69,8 @@ class _MyAppState extends State<MyApp> {
       setState(() {});
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +82,9 @@ class _MyAppState extends State<MyApp> {
           return MultiBlocProvider(
               providers: [
                 BlocProvider(
-                    create: (context) => sl<AddTaskCubit>())
+                    create: (context) => sl<AddTaskCubit>()..loadTasksNames()),
+                BlocProvider(
+                    create: (context) => sl<HomeCubit>()..loadTasksCategories(searchByToday))
               ],
               child: MaterialApp(
                 localizationsDelegates: context.localizationDelegates,
@@ -82,7 +96,7 @@ class _MyAppState extends State<MyApp> {
                 darkTheme: darkTheme,
                 themeMode: _themeManager.themeMode,
                 onGenerateRoute: RouteGenerator.getRoute,
-                initialRoute: Routes.addTask,
+                initialRoute: Routes.mainRoute,
               ));
         });
   }

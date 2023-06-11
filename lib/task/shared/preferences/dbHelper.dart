@@ -9,10 +9,15 @@ class DbHelper {
 
   static int? insertedNewTaskId;
 
+  String dbdName = 'tasksDb5.db';
+
   Future<Database> get database async {
-    if (_db != null) return _db!;
-    _db = await initDB('tasksDb4.db');
-    return _db!;
+    if (_db != null) {
+      return _db!;
+    } else {
+      _db = await initDB(dbdName);
+      return _db!;
+    }
   }
 
   Future<Database> initDB(String filePath) async {
@@ -46,11 +51,61 @@ class DbHelper {
   }
 
   Future<List<String>> getAllTasksNames() async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
     final db = _db!.database;
+
     final List<Map<String, dynamic>> tasksNames =
         await db.rawQuery('SELECT taskName FROM tasks');
     return List.generate(
         tasksNames.length, (index) => tasksNames[index]['taskName'].toString());
+  }
+
+  Future<List<String>> getDailyTasksCategories(String date) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    final List<Map<String, dynamic>> tasksCategories =
+        await db.rawQuery('SELECT * FROM tasks where date = ?', [date]);
+
+    return List.generate(tasksCategories.length,
+        (index) => tasksCategories[index]['category'].toString());
+  }
+
+  Future<double> getCategoriesPercent(String category) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    var task = await db.query('tasks');
+    int tasksCount = task.length;
+
+    var done = await db.query('tasks', where: "done = 1");
+    int doneTasksCount = done.length;
+
+    double percent = (doneTasksCount / tasksCount) * 100;
+
+    return percent;
+  }
+
+  Future<int> getCountOfCategoryItems(String category, String date) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    var categories = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ?', [category, date]);
+    int tasksCount = categories.length;
+
+    return tasksCount;
   }
 
   Future<DailyTaskModel> showTask(int id) async {
@@ -67,15 +122,16 @@ class DbHelper {
 
   Future<List<DailyTaskModel>> showAllTasks(
       // String category, DateTime date) async {
-      String category) async {
-    final db = _db!.database;
+      String category,
+      String date) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
 
-    final result = await db.query('tasks',
-        // where: 'category = ?, date = ?',
-        where: 'category = ?',
-        // whereArgs: [category, date],
-        whereArgs: [category],
-        orderBy: 'id ASC');
+    final db = _db!.database;
+    final result = await db.rawQuery(
+        'SELECT * FROM tasks where date = ? and category = ? Order by id ASC',
+        [date, category]);
 
     return result.map((map) => DailyTaskModel.fromMap(map)).toList();
   }
