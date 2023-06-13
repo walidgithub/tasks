@@ -14,7 +14,6 @@ import '../../../shared/style/colors_manager.dart';
 import '../../router/arguments.dart';
 
 class DailyTasks extends StatefulWidget {
-
   final DailyTasksArguments arguments;
 
   const DailyTasks({super.key, required this.arguments});
@@ -24,6 +23,11 @@ class DailyTasks extends StatefulWidget {
 }
 
 class _DailyTasksState extends State<DailyTasks> {
+
+  static double checkDouble(dynamic value) {
+    return 1 / value;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -33,8 +37,7 @@ class _DailyTasksState extends State<DailyTasks> {
           Container(
               // height: 75,
               padding: const EdgeInsets.fromLTRB(0, 8, 0, 10),
-              decoration: (
-                  BoxDecoration(
+              decoration: (BoxDecoration(
                   color: Colors.white,
                   border: Border.all(width: 2.w, color: ColorManager.accent),
                   borderRadius: BorderRadius.circular(40),
@@ -66,78 +69,93 @@ class _DailyTasksState extends State<DailyTasks> {
                                     textAlign: TextAlign.left,
                                     style: TextStyle(fontSize: 18.sp),
                                   ),
-                                  widget.arguments.done != null ? Icon(Icons.done,color: ColorManager.blueColor,) : Container(),
+                                  widget.arguments.done == 1
+                                      ? Icon(
+                                          Icons.done,
+                                          color: ColorManager.blueColor,
+                                        )
+                                      : Container(),
                                 ],
                               ),
-                              widget.arguments.counter != null ?
-                              Bounceable(
-                                duration: const Duration(milliseconds: 100),
-                                onTap:() async {
-                                  await Future.delayed(const Duration(milliseconds: 100));
-                                },
-                                child: Container(
-                                  width: 70.w,
-                                  height: 40.h,
-                                  decoration: (BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(
-                                          width: 2.w, color: ColorManager.accent),
-                                      borderRadius: BorderRadius.circular(40),
-                                      gradient: LinearGradient(
-                                          begin: Alignment.centerRight,
-                                          end: Alignment.centerLeft,
-                                          colors: [
-                                            Colors.white,
-                                            ColorManager.lightPrimary,
-                                          ]))),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      const Icon(Icons.fingerprint_rounded),
-                                      Text(
-                                        widget.arguments.counterVal.toString(),
-                                        textAlign: TextAlign.left,
-                                        style: TextStyle(
-                                            fontSize: 20.sp,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ):Container(),
-
-                              widget.arguments.wheel != null ?
-                              Container(
-                                  height: 100.h,
-                                  width: 100.w,
-                                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                                  decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                          begin: Alignment.centerRight,
-                                          end: Alignment.centerLeft,
-                                          colors: [
-                                            ColorManager.lightPrimary,
-                                            Colors.white,
-                                          ]),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border:
-                                    Border.all(color: ColorManager.accent, width: 2.0.w),
-                                  ),
-                                  child: ListWheelScrollView.useDelegate(
-                                      onSelectedItemChanged: (value) {
-                                        setState(() {
-                                        });
+                              widget.arguments.counter == 1
+                                  ? Bounceable(
+                                      duration:
+                                          const Duration(milliseconds: 100),
+                                      onTap: () async {
+                                        await Future.delayed(
+                                            const Duration(milliseconds: 100));
                                       },
-                                      perspective: 0.005,
-                                      diameterRatio: 1.2,
-                                      physics: const FixedExtentScrollPhysics(),
-                                      itemExtent: 40,
-                                      childDelegate: ListWheelChildBuilderDelegate(
-                                          childCount: 999,
-                                          builder: (context, index) {
-                                            return myCounter(index + 1);
-                                          }))):Container(),
-
+                                      child: Container(
+                                        width: 70.w,
+                                        height: 40.h,
+                                        decoration: (BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(
+                                                width: 2.w,
+                                                color: ColorManager.accent),
+                                            borderRadius:
+                                                BorderRadius.circular(40),
+                                            gradient: LinearGradient(
+                                                begin: Alignment.centerRight,
+                                                end: Alignment.centerLeft,
+                                                colors: [
+                                                  Colors.white,
+                                                  ColorManager.lightPrimary,
+                                                ]))),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            const Icon(
+                                                Icons.fingerprint_rounded),
+                                            Text(
+                                              widget.arguments.counterVal
+                                                  .toString(),
+                                              textAlign: TextAlign.left,
+                                              style: TextStyle(
+                                                  fontSize: 20.sp,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  : Container(),
+                              widget.arguments.wheel == 1
+                                  ? Container(
+                                      height: 100.h,
+                                      width: 100.w,
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 0, 10, 10),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                            begin: Alignment.centerRight,
+                                            end: Alignment.centerLeft,
+                                            colors: [
+                                              ColorManager.lightPrimary,
+                                              Colors.white,
+                                            ]),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: ColorManager.accent,
+                                            width: 2.0.w),
+                                      ),
+                                      child: ListWheelScrollView.useDelegate(
+                                          onSelectedItemChanged: (value) {
+                                            setState(() {});
+                                          },
+                                          perspective: 0.005,
+                                          diameterRatio: 1.2,
+                                          physics:
+                                              const FixedExtentScrollPhysics(),
+                                          itemExtent: 40,
+                                          childDelegate:
+                                              ListWheelChildBuilderDelegate(
+                                                  childCount: 999,
+                                                  builder: (context, index) {
+                                                    return myCounter(index + 1);
+                                                  })))
+                                  : Container(),
                               Row(
                                 children: [
                                   Text(
@@ -148,7 +166,10 @@ class _DailyTasksState extends State<DailyTasks> {
                                   SizedBox(
                                     width: AppConstants.smallDistance,
                                   ),
-                                  widget.arguments.timer != null ? const Icon(Icons.access_alarms_rounded, size: 15) : Container()
+                                  widget.arguments.timer == 1
+                                      ? const Icon(Icons.access_alarms_rounded,
+                                          size: 15)
+                                      : Container()
                                 ],
                               )
                             ],
@@ -159,7 +180,8 @@ class _DailyTasksState extends State<DailyTasks> {
                           ReadMoreText(
                             widget.arguments.description!,
                             style: TextStyle(
-                                fontSize: 15.sp, color: ColorManager.darkBasicOverlay),
+                                fontSize: 15.sp,
+                                color: ColorManager.darkBasicOverlay),
                             trimLines: 1,
                             colorClickableText: ColorManager.blueColor,
                             trimMode: TrimMode.Line,
@@ -171,70 +193,87 @@ class _DailyTasksState extends State<DailyTasks> {
                     ),
                   ),
                   Expanded(
-                    flex: widget.arguments.nested != null ? 2 : 1,
+                    flex: widget.arguments.nested == 1 ? 2 : 1,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         Bounceable(
                             duration: const Duration(milliseconds: 100),
-                            onTap:() async {
-                              await Future.delayed(const Duration(milliseconds: 100));
+                            onTap: () async {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 100));
                             },
-                            child: SvgPicture.asset(widget.arguments.pinned != null ? ImageAssets.pin_icon : ImageAssets.unPin_icon,color: ColorManager.basic,width: 25.w)),
-                        widget.arguments.nested != null ? Column(
-                          children: [
-                            SizedBox(
-                              height: AppConstants.smallDistance,
-                            ),
-                            CircularPercentIndicator(
-                              radius: 25.0.h,
-                              lineWidth: 5.0.w,
-                              percent: widget.arguments.nestedVal! / 100,
-                              center: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                            child: SvgPicture.asset(
+                                widget.arguments.pinned == 1
+                                    ? ImageAssets.pin_icon
+                                    : ImageAssets.unPin_icon,
+                                color: ColorManager.basic,
+                                width: 25.w)),
+                        widget.arguments.nested == 1
+                            ? Column(
                                 children: [
-                                  Countup(
-                                    begin: 0,
-                                    end: widget.arguments.nestedVal!,
-                                    duration: const Duration(seconds: 5),
-                                    style: TextStyle(
-                                      fontSize: 10.sp,
-                                    ),
+                                  SizedBox(
+                                    height: AppConstants.smallDistance,
                                   ),
-                                  Text('%',style: TextStyle(fontSize: 10.sp),)
+                                  CircularPercentIndicator(
+                                    radius: 25.0.h,
+                                    lineWidth: 5.0.w,
+                                    percent: widget.arguments.nestedVal == 0 ? 0.0 : checkDouble(
+                                        widget.arguments.nestedVal) /
+                                        100,
+                                    center: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Countup(
+                                          begin: 0,
+                                          end: widget.arguments.nestedVal == 0 ? 0.0 : checkDouble(
+                                              widget.arguments.nestedVal),
+                                          duration: const Duration(seconds: 5),
+                                          style: TextStyle(
+                                            fontSize: 10.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          '%',
+                                          style: TextStyle(fontSize: 10.sp),
+                                        )
+                                      ],
+                                    ),
+                                    backgroundColor: ColorManager.accent,
+                                    progressColor: ColorManager.basic,
+                                    circularStrokeCap: CircularStrokeCap.round,
+                                    animation: true,
+                                    animationDuration: 6000,
+                                    curve: Curves.easeInOut,
+                                  )
                                 ],
-                              ),
-                              backgroundColor: ColorManager.accent,
-                              progressColor: ColorManager.basic,
-                              circularStrokeCap: CircularStrokeCap.round,
-                              animation: true,
-                              animationDuration: 6000,
-                              curve: Curves.easeInOut,
-                            )
-                          ],
-                        ) : Container()
+                              )
+                            : Container()
                       ],
                     ),
                   ),
-                  widget.arguments.nested != null ?
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Bounceable(
-                            duration: const Duration(milliseconds: 300),
-                            onTap:() async {
-                              await Future.delayed(const Duration(milliseconds: 200));
-                            },
-                            child: Icon(Icons.arrow_circle_right_outlined,color: ColorManager.basic)),
-                      ],
-                    ),
-                  )
+                  widget.arguments.nested == 1
+                      ? Expanded(
+                          flex: 1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Bounceable(
+                                  duration: const Duration(milliseconds: 300),
+                                  onTap: () async {
+                                    await Future.delayed(
+                                        const Duration(milliseconds: 200));
+                                  },
+                                  child: Icon(Icons.arrow_circle_right_outlined,
+                                      color: ColorManager.basic)),
+                            ],
+                          ),
+                        )
                       : Padding(
-                    padding: const EdgeInsets.only(right: 15),
-                    child: Container(),
-                  )
+                          padding: const EdgeInsets.only(right: 15),
+                          child: Container(),
+                        )
                 ],
               )),
         ],
@@ -253,8 +292,11 @@ class _DailyTasksState extends State<DailyTasks> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(8,0,0,0),
-              child: Text(index.toString(),style: TextStyle(fontSize: 20.sp,fontWeight: FontWeight.bold),),
+              padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
+              child: Text(
+                index.toString(),
+                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold),
+              ),
             ),
             SvgPicture.asset(ImageAssets.scroll,
                 color: ColorManager.basic, width: 25.w),
@@ -264,4 +306,3 @@ class _DailyTasksState extends State<DailyTasks> {
     );
   }
 }
-

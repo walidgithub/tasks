@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:countup/countup.dart';
 import 'package:date_picker_timeline/date_picker_widget.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +30,8 @@ class _HomePageViewState extends State<HomePageView> {
 
   Set<String> dailyCategories = {};
 
-  int itemsCount = 100;
-  double categoryPercent = 0.0;
+  List<int> itemsCount = [];
+  List<double> categoryPercent = [];
 
   DateTime today = DateTime.now();
   String searchByToday = '';
@@ -41,8 +40,7 @@ class _HomePageViewState extends State<HomePageView> {
   void initState() {
     String originalDate =
         DateTime.parse(today.toString().split(" ")[0]).toString();
-    searchByToday = originalDate.substring(0, 10);
-
+    searchByToday = originalDate.replaceFirst(RegExp(' '), 'T');
     super.initState();
   }
 
@@ -75,6 +73,7 @@ class _HomePageViewState extends State<HomePageView> {
         } else if (state is LoadedCategoriesState) {
           dailyCategories = HomeCubit.get(context).categories;
           itemsCount = HomeCubit.get(context).itemsCount;
+          categoryPercent = HomeCubit.get(context).categoryPercent;
         }
       },
       builder: (context, state) {
@@ -152,7 +151,8 @@ class _HomePageViewState extends State<HomePageView> {
                     child: Bounceable(
                         duration: const Duration(milliseconds: 100),
                         onTap: () async {
-                          await Future.delayed(Duration(milliseconds: 700));
+                          await Future.delayed(
+                              const Duration(milliseconds: 700));
                           scaffoldKey.currentState?.openDrawer();
                         },
                         child: SvgPicture.asset(ImageAssets.menuImage,
@@ -165,7 +165,8 @@ class _HomePageViewState extends State<HomePageView> {
                         Bounceable(
                           duration: const Duration(milliseconds: 100),
                           onTap: () async {
-                            await Future.delayed(Duration(milliseconds: 700));
+                            await Future.delayed(
+                                const Duration(milliseconds: 700));
                             scaffoldKey.currentState?.openDrawer();
                           },
                           child:
@@ -189,15 +190,24 @@ class _HomePageViewState extends State<HomePageView> {
                       color: ColorManager.darkPrimary,
                     )),
                 DatePicker(
-                  DateTime.now(),
+                  today,
                   width: 60.w,
                   height: 80.h,
-                  initialSelectedDate: DateTime.now(),
+                  initialSelectedDate: today,
                   selectionColor: ColorManager.darkPrimary,
                   selectedTextColor: Colors.white,
                   onDateChange: (date) {
                     setState(() {
                       yearOfDate = date.year;
+
+                      DateTime otherDate = date;
+                      String searchByDay = '';
+
+                      String originalDate = DateTime.parse(
+                          otherDate.toString().split(" ")[0]).toString();
+                      searchByDay = originalDate.replaceFirst(RegExp(' '), 'T');
+
+                      HomeCubit.get(context).loadTasksCategories(searchByDay);
                     });
                   },
                 ),
@@ -225,9 +235,9 @@ class _HomePageViewState extends State<HomePageView> {
                     children: List.generate(dailyCategories.length, (index) {
                       return Category(
                         tasksDate: searchByToday,
-                        itemsCount: itemsCount,
+                        itemsCount: itemsCount[index],
                         name: dailyCategories.elementAt(index),
-                        percent: HomeCubit.get(context).categoryPercent,
+                        percent: categoryPercent[index],
                       );
                     })))
           ],

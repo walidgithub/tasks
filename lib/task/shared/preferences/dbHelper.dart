@@ -9,7 +9,7 @@ class DbHelper {
 
   static int? insertedNewTaskId;
 
-  String dbdName = 'tasksDb5.db';
+  String dbdName = 'tasksDb6.db';
 
   Future<Database> get database async {
     if (_db != null) {
@@ -77,17 +77,17 @@ class DbHelper {
         (index) => tasksCategories[index]['category'].toString());
   }
 
-  Future<double> getCategoriesPercent(String category) async {
+  Future<double> getCategoriesPercent(String category, String date, [int doneTask = 1]) async {
     if (_db == null) {
       await initDB(dbdName);
     }
 
     final db = _db!.database;
 
-    var task = await db.query('tasks');
+    var task = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ?', [category, date]);
     int tasksCount = task.length;
 
-    var done = await db.query('tasks', where: "done = 1");
+    var done = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ? and done = ?', [category, date, doneTask]);
     int doneTasksCount = done.length;
 
     double percent = (doneTasksCount / tasksCount) * 100;
@@ -120,8 +120,7 @@ class DbHelper {
     }
   }
 
-  Future<List<DailyTaskModel>> showAllTasks(
-      // String category, DateTime date) async {
+  Future<List<DailyTaskModel>> loadDailyTasksByCategory(
       String category,
       String date) async {
     if (_db == null) {

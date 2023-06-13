@@ -19,7 +19,7 @@ class DailyTasksArguments {
   int? pinned;
   int? done;
   int? nested;
-  double? nestedVal;
+  int? nestedVal;
   int? wheel;
   int? counter;
   int? counterVal;

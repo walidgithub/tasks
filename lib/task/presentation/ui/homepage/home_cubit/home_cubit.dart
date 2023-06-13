@@ -19,18 +19,18 @@ class HomeCubit extends Cubit<HomeState> {
 
   var tasks = [];
 
-  double categoryPercent = 0.0;
-  int itemsCount = 200;
+  List<double> categoryPercent = [];
+  List<int> itemsCount = [];
 
   // -----------------------------------------------------------------------------
-  Future<void> loadAllTasks(String category, String date) async {
+  Future<void> loadDailyTasksByCategory(String category, String date) async {
     try {
       emit(LoadingTasksState());
       await getAllTasks(category, date).then((allTasks) {
         for (var v in allTasks) {
           tasks.add(v.toMap());
         }
-        print(tasks);
+        // print(tasks);
       });
       emit(LoadedTasksState());
     } catch (e) {
@@ -39,7 +39,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   Future<List<DailyTaskModel>> getAllTasks(String category, String date) async {
-    final res = await taskRepoImp.getAllTasks(category, date);
+    final res = await taskRepoImp.loadDailyTasksByCategory(category, date);
     return res;
   }
 
@@ -47,12 +47,18 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> loadTasksCategories(String date) async {
     try {
       emit(LoadingCategoriesState());
-      await getDailyCategories(date).then((allDailyCategories) {
+      await getDailyCategories(date).then((allDailyCategories) async {
         categories = allDailyCategories.toSet();
-      });
 
-      await getItemsCountInCategory('category two', '2023-06-11T00:00:00.000').then((count) {
-        itemsCount = count;
+        for (var category in categories) {
+          await getItemsCountInCategory(category, date).then((count) {
+            itemsCount.add(count);
+          });
+
+          await getCategoryPercent(category, date).then((percent) {
+            categoryPercent.add(percent);
+          });
+        }
       });
 
       emit(LoadedCategoriesState());
@@ -67,15 +73,16 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   // -----------------------------------------------------------------------------
-  Future<double> getCategoryPercent(String category) async {
-    final categoryPercent = await taskRepoImp.getPercentForCategory(category);
+  Future<double> getCategoryPercent(String category, String date) async {
+    final categoryPercent =
+        await taskRepoImp.getPercentForCategory(category, date);
     return categoryPercent;
   }
 
   // -----------------------------------------------------------------------------
   Future<int> getItemsCountInCategory(String category, String date) async {
     final itemsCount =
-        await taskRepoImp.getItemsCountInCategory(category, date) ;
+        await taskRepoImp.getItemsCountInCategory(category, date);
     return itemsCount;
   }
 }

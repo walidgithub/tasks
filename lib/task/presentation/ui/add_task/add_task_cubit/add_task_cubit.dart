@@ -41,8 +41,8 @@ class AddTaskCubit extends Cubit<AddTaskState> {
     emit(NewTaskDaySavedState());
   }
 
-  Future<List<DailyTaskModel>> getAllTasks(String category, String date) async {
-    final res = await taskRepoImp.getAllTasks(category, date);
+  Future<List<DailyTaskModel>> loadDailyTasksByCategory(String category, String date) async {
+    final res = await taskRepoImp.loadDailyTasksByCategory(category, date);
     return res;
   }
 }

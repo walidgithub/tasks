@@ -38,15 +38,15 @@ class _CategoryState extends State<Category> {
           duration: const Duration(milliseconds: 100),
           onTap: () async {
             await Future.delayed(const Duration(milliseconds: 150));
-
-            await HomeCubit.get(context)
-                .loadAllTasks(widget.name, '2023-06-11T00:00:00.000');
-
+            // category info
             Navigator.of(context).pushReplacementNamed(Routes.tasksByCategory,
                 arguments: TasksByCategoryArguments(
                     category: widget.name,
                     countOfItems: widget.itemsCount,
                     tasksDate: widget.tasksDate));
+
+            // load tasks by category and date
+
           },
           child: Container(
               margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),

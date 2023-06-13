@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tasks/task/presentation/ui/daily_tasks/daily_tasks_cubit/daily_tasks_cubit.dart';
 
 import '../../domain/repositories/task_repo_imp.dart';
 import '../../shared/preferences/app_pref.dart';
@@ -25,6 +26,9 @@ class ServiceLocator {
 
     // Home Cubit
     sl.registerFactory(() => HomeCubit(sl()));
+
+    // Daily Tasks Cubit
+    sl.registerFactory(() => DailyTasksCubit(sl()));
 
     // Theme
     sl.registerLazySingleton<ThemeManager>(() => ThemeManager());

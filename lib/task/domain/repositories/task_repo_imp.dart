@@ -43,13 +43,13 @@ class TaskRepoImp extends TaskRepository {
   }
 
   @override
-  Future<List<DailyTaskModel>> getAllTasks(String category, String date) async {
-    final res = await _dbHelper.showAllTasks(category, date);
+  Future<List<DailyTaskModel>> loadDailyTasksByCategory(String category, String date) async {
+    final res = await _dbHelper.loadDailyTasksByCategory(category, date);
     return res;
   }
 
   @override
-  Future<List<NestedTaskModel>> getAllNestedTasks(int taskId) {
+  Future<List<NestedTaskModel>> loadNestedTasksById(int taskId) {
     // TODO: implement getNestedTasks
     throw UnimplementedError();
   }
@@ -67,8 +67,8 @@ class TaskRepoImp extends TaskRepository {
   }
 
   @override
-  Future<double> getPercentForCategory(String category) async {
-    final res = await _dbHelper.getCategoriesPercent(category);
+  Future<double> getPercentForCategory(String category, String date) async {
+    final res = await _dbHelper.getCategoriesPercent(category, date);
     return res;
   }
 

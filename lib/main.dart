@@ -8,6 +8,7 @@ import 'package:tasks/task/presentation/di/di.dart';
 import 'package:tasks/task/presentation/router/app_router.dart';
 import 'package:tasks/task/presentation/ui/add_task/add_task.dart';
 import 'package:tasks/task/presentation/ui/add_task/add_task_cubit/add_task_cubit.dart';
+import 'package:tasks/task/presentation/ui/daily_tasks/daily_tasks_cubit/daily_tasks_cubit.dart';
 import 'package:tasks/task/presentation/ui/homepage/home_cubit/home_cubit.dart';
 import 'package:tasks/task/presentation/ui/homepage/homepage_view.dart';
 import 'package:tasks/task/presentation/ui/nested_details/nested_details.dart';
@@ -58,9 +59,7 @@ class _MyAppState extends State<MyApp> {
 
     String originalDate = DateTime.parse(
         today.toString().split(" ")[0]).toString();
-    print(originalDate);
     searchByToday = originalDate.replaceFirst(RegExp(' '), 'T');
-
     super.initState();
   }
 
@@ -84,7 +83,9 @@ class _MyAppState extends State<MyApp> {
                 BlocProvider(
                     create: (context) => sl<AddTaskCubit>()..loadTasksNames()),
                 BlocProvider(
-                    create: (context) => sl<HomeCubit>()..loadTasksCategories(searchByToday))
+                    create: (context) => sl<HomeCubit>()..loadTasksCategories(searchByToday)),
+                BlocProvider(
+                    create: (context) => sl<DailyTasksCubit>())
               ],
               child: MaterialApp(
                 localizationsDelegates: context.localizationDelegates,
