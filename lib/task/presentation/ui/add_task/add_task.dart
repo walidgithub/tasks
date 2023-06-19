@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:tasks/task/presentation/router/arguments.dart';
 import 'package:tasks/task/shared/preferences/dbHelper.dart';
 import '../../../domain/entities/daily_task_model.dart';
 import '../../../domain/entities/task_days_model.dart';
@@ -19,17 +18,31 @@ import 'add_task_cubit/add_task_cubit.dart';
 import 'add_task_cubit/add_task_state.dart';
 
 class AddTask extends StatefulWidget {
-  String? editType;
+  GoToTaskArguments arguments;
 
-  AddTask({super.key, this.editType});
+  AddTask({super.key, required this.arguments});
 
   @override
   State<AddTask> createState() => _AddTaskState();
 }
 
 class _AddTaskState extends State<AddTask> {
+  var oldTask;
+
+  @override
+  void initState() {
+    if (widget.arguments.editType == 'Edit') {
+      AddTaskCubit.get(context).loadTaskById(widget.arguments.id!);
+    }
+    super.initState();
+  }
 
   var _selectedTask;
+  var _selectedCategory;
+
+  final FocusNode _taskFN = FocusNode();
+  final FocusNode _descriptionFN = FocusNode();
+  final FocusNode _categoryFN = FocusNode();
 
   int? _counterValue = 0;
 
@@ -52,7 +65,8 @@ class _AddTaskState extends State<AddTask> {
     });
   }
 
-  List<String>? tasksItemsScreen;
+  Set<String>? tasksItemsScreen;
+  Set<String>? categories;
 
   TimeOfDay _timeOfDay = TimeOfDay.now();
 
@@ -65,36 +79,44 @@ class _AddTaskState extends State<AddTask> {
     });
   }
 
-  List allDays = [
+  List taskDaysList = [
     {
-      'dayName': 'Sun',
-      'checkValue': false,
+      'nameOfDay': 'Sun',
+      'checkedDay': false,
     },
     {
-      'dayName': 'Mon',
-      'checkValue': false,
+      'nameOfDay': 'Mon',
+      'checkedDay': false,
     },
     {
-      'dayName': 'Tue',
-      'checkValue': false,
+      'nameOfDay': 'Tue',
+      'checkedDay': false,
     },
     {
-      'dayName': 'Wed',
-      'checkValue': false,
+      'nameOfDay': 'Wed',
+      'checkedDay': false,
     },
     {
-      'dayName': 'Thu',
-      'checkValue': false,
+      'nameOfDay': 'Thu',
+      'checkedDay': false,
     },
     {
-      'dayName': 'Fri',
-      'checkValue': false,
+      'nameOfDay': 'Fri',
+      'checkedDay': false,
     },
     {
-      'dayName': 'Sat',
-      'checkValue': false,
+      'nameOfDay': 'Sat',
+      'checkedDay': false,
     },
   ];
+
+  bool _addNewCategory = true;
+
+  void _changeToAddNewCategory(value) {
+    setState(() {
+      _addNewCategory = value;
+    });
+  }
 
   bool _timer = false;
 
@@ -137,8 +159,6 @@ class _AddTaskState extends State<AddTask> {
   bool _nested = false;
 
   Future<void> _changeToNested(value) async {
-    // await AddTaskCubit.get(context).loadTasksNames();
-
     setState(() {
       _nested = value;
       if (_nested) {
@@ -188,7 +208,9 @@ class _AddTaskState extends State<AddTask> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(AppStrings.create.tr()),
+              widget.arguments.editType == 'Edit'
+                  ? Text(AppStrings.update.tr())
+                  : Text(AppStrings.create.tr()),
             ],
           ),
           leading: Bounceable(
@@ -202,7 +224,7 @@ class _AddTaskState extends State<AddTask> {
               padding: const EdgeInsets.only(right: 8),
               child: Row(
                 children: [
-                  widget.editType == 'Edit'
+                  widget.arguments.editType == 'Add'
                       ? Container()
                       : Row(
                           children: [
@@ -211,6 +233,9 @@ class _AddTaskState extends State<AddTask> {
                                 onTap: () async {
                                   await Future.delayed(
                                       const Duration(milliseconds: 200));
+
+                                  await AddTaskCubit.get(context)
+                                      .deleteTask(widget.arguments.id!);
                                 },
                                 child: const Icon(Icons.delete)),
                             SizedBox(
@@ -223,15 +248,65 @@ class _AddTaskState extends State<AddTask> {
                       onTap: () async {
                         await Future.delayed(const Duration(milliseconds: 200));
 
+                        if (_taskNameEditingController.text == '') {
+                          final snackBar = SnackBar(
+                            content: Text(AppStrings.taskAlert.tr()),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          return;
+                        }
+
+                        if (_descriptionEditingController.text == '') {
+                          final snackBar = SnackBar(
+                            content: Text(AppStrings.descriptionAlert.tr()),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          return;
+                        }
+
+                        if (_categoryEditingController.text == '' &&
+                            _addNewCategory == false) {
+                          final snackBar = SnackBar(
+                            content: Text(AppStrings.categoryAlert.tr()),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          return;
+                        } else if (_selectedCategory == '' &&
+                            _addNewCategory == false) {
+                          final snackBar = SnackBar(
+                            content: Text(AppStrings.categoryAlert.tr()),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          return;
+                        }
+
                         // --------------------------------------------------------------------------
+                        if (_pinned) {
+                          int checkedDaysCount = 0;
+                          for (var selectedDay in taskDaysList) {
+                            if (selectedDay['checkedDay'] == false) {
+                              checkedDaysCount++;
+                            }
+                          }
+                          if (checkedDaysCount == 7){
+                            _pinned = false;
+                          }
+                        }
+
+                          // -------------------------------------------------------------------------
 
                         if (_pinned) {
                           // add new pinned task
                           DailyTaskModel dailyModel = DailyTaskModel(
-                              category: _categoryEditingController.text,
+                              id: widget.arguments.editType! == 'Edit'
+                                  ? widget.arguments.id
+                                  : null,
+                              category: _addNewCategory
+                                  ? _selectedCategory
+                                  : _categoryEditingController.text,
                               date: DateTime.parse(
                                   today.toString().split(" ")[0]),
-                              pinned: _pinned ? 1 : 0,
+                              pinned: 1,
                               done: 0,
                               timer: _timer ? 1 : 0,
                               taskName: _taskNameEditingController.text,
@@ -244,19 +319,45 @@ class _AddTaskState extends State<AddTask> {
                               specificDate: _specificDate ? 1 : 0,
                               wheel: _wheel ? 1 : 0);
 
-                          await AddTaskCubit.get(context)
-                              .addNewTask(dailyModel);
+                          if (widget.arguments.editType! == 'Edit') {
+                            await AddTaskCubit.get(context)
+                                .updateTask(dailyModel, widget.arguments.id!);
+                          } else if (widget.arguments.editType! == 'Add') {
+                            await AddTaskCubit.get(context)
+                                .addNewTask(dailyModel);
+                          }
 
-                          for (var selectedDay in allDays) {
-                            if (selectedDay['checkValue']) {
-                              // add task day
-                              TaskDaysModel taskDays = TaskDaysModel(
-                                  nameOfDay: selectedDay['dayName'],
-                                  checkedDay: selectedDay['checkValue'] ? 1 : 0,
-                                  mainTaskId: DbHelper.insertedNewTaskId);
+                          if (widget.arguments.editType! == 'Edit') {
+                            // delete before adding
+                            await AddTaskCubit.get(context)
+                                .deleteTaskDays(widget.arguments.id!);
 
-                              await AddTaskCubit.get(context)
-                                  .addTaskDay(taskDays);
+                            for (var selectedDay in taskDaysList) {
+                              if (selectedDay['checkedDay']) {
+                                // add task day
+                                TaskDaysModel taskDays = TaskDaysModel(
+                                    nameOfDay: selectedDay['nameOfDay'],
+                                    checkedDay:
+                                        selectedDay['checkedDay'] ? 1 : 0,
+                                    mainTaskId: widget.arguments.id);
+
+                                await AddTaskCubit.get(context)
+                                    .addTaskDay(taskDays);
+                              }
+                            }
+                          } else if (widget.arguments.editType! == 'Add') {
+                            for (var selectedDay in taskDaysList) {
+                              if (selectedDay['checkedDay']) {
+                                // add task day
+                                TaskDaysModel taskDays = TaskDaysModel(
+                                    nameOfDay: selectedDay['nameOfDay'],
+                                    checkedDay:
+                                        selectedDay['checkedDay'] ? 1 : 0,
+                                    mainTaskId: DbHelper.insertedNewTaskId);
+
+                                await AddTaskCubit.get(context)
+                                    .addTaskDay(taskDays);
+                              }
                             }
                           }
                         } else {
@@ -265,10 +366,15 @@ class _AddTaskState extends State<AddTask> {
 
                           // add new task
                           DailyTaskModel dailyModel = DailyTaskModel(
-                              category: _categoryEditingController.text,
+                              id: widget.arguments.editType! == 'Edit'
+                                  ? widget.arguments.id
+                                  : null,
+                              category: _addNewCategory
+                                  ? _selectedCategory
+                                  : _categoryEditingController.text,
                               date: DateTime.parse(
                                   today.toString().split(" ")[0]),
-                              pinned: _pinned ? 1 : 0,
+                              pinned: 0,
                               done: 0,
                               timer: _timer ? 1 : 0,
                               taskName: _taskNameEditingController.text,
@@ -280,10 +386,16 @@ class _AddTaskState extends State<AddTask> {
                               nestedVal: 0,
                               specificDate: _specificDate ? 1 : 0,
                               wheel: _wheel ? 1 : 0);
+                          if (widget.arguments.editType! == 'Edit') {
+                            await AddTaskCubit.get(context)
+                                .deleteTaskDays(widget.arguments.id!);
 
-                          await AddTaskCubit.get(context)
-                              .addNewTask(dailyModel);
-
+                            await AddTaskCubit.get(context)
+                                .updateTask(dailyModel, widget.arguments.id!);
+                          } else if (widget.arguments.editType! == 'Add') {
+                            await AddTaskCubit.get(context)
+                                .addNewTask(dailyModel);
+                          }
                         }
 
                         // --------------------------------------------------------------------------
@@ -300,13 +412,53 @@ class _AddTaskState extends State<AddTask> {
   Widget bodyContent() {
     return BlocConsumer<AddTaskCubit, AddTaskState>(
       listener: (context, state) {
+        // loading Tasks Names -----------------------------------------------------
         if (state is LoadingTasksNamesState) {
-
         } else if (state is ErrorLoadingTasksNamesState) {
-
         } else if (state is LoadedTasksNamesState) {
           tasksItemsScreen = AddTaskCubit.get(context).tasksNames;
-        }
+
+          // loading Categories -----------------------------------------------------
+        } else if (state is LoadingCategoriesState) {
+        } else if (state is ErrorLoadingCategoriesState) {
+        } else if (state is LoadedCategoriesState) {
+          categories = AddTaskCubit.get(context).categories;
+
+          // New Task -----------------------------------------------------
+        } else if (state is NewTaskSavedState) {
+          final snackBar = SnackBar(
+            content: Text(AppStrings.successfullySaved.tr()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        } else if (state is AddTaskErrorState) {
+          // Update Task -----------------------------------------------------
+        } else if (state is UpdateTaskState) {
+          final snackBar = SnackBar(
+            content: Text(AppStrings.successfullyUpdated.tr()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        } else if (state is ErrorUpdateTaskState) {
+          // Delete Task -----------------------------------------------------
+        } else if (state is DeleteTaskState) {
+          final snackBar = SnackBar(
+            content: Text(AppStrings.successfullyDeleted.tr()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        } else if (state is ErrorDeleteTaskState) {
+          // Show Task -----------------------------------------------------
+        } else if (state is LoadingPrevTask) {
+        } else if (state is LoadedPrevTask) {
+          oldTask = state.taskData.toMap();
+
+          getData(oldTask);
+        } else if (state is ErrorLoadingPrevTask) {
+          // Show Task Days -----------------------------------------------------
+        } else if (state is LoadingPrevTaskDay) {
+        } else if (state is LoadedPrevTaskDay) {
+          for (var v in state.taskDayData) {
+            fillDays(v.toMap());
+          }
+        } else if (state is ErrorLoadingPrevTaskDay) {}
       },
       builder: (context, state) {
         return Padding(
@@ -316,7 +468,12 @@ class _AddTaskState extends State<AddTask> {
             child: Column(
               children: [
                 TextField(
-                    onSubmitted: (_) {},
+                    onSubmitted: (_) {
+                      FocusScope.of(context).requestFocus(_descriptionFN);
+                    },
+                    maxLength: 15,
+                    autofocus: true,
+                    focusNode: _taskFN,
                     keyboardType: TextInputType.text,
                     controller: _taskNameEditingController,
                     decoration: InputDecoration(
@@ -326,7 +483,11 @@ class _AddTaskState extends State<AddTask> {
                   height: AppConstants.heightBetweenElements,
                 ),
                 TextField(
-                    onSubmitted: (_) {},
+                    onSubmitted: (_) {
+                      FocusScope.of(context).requestFocus(_categoryFN);
+                    },
+                    maxLength: 50,
+                    focusNode: _descriptionFN,
                     keyboardType: TextInputType.text,
                     controller: _descriptionEditingController,
                     decoration: InputDecoration(
@@ -335,13 +496,119 @@ class _AddTaskState extends State<AddTask> {
                 SizedBox(
                   height: AppConstants.heightBetweenElements,
                 ),
-                TextField(
-                    onSubmitted: (_) {},
-                    keyboardType: TextInputType.text,
-                    controller: _categoryEditingController,
-                    decoration: InputDecoration(
-                        hintText: AppStrings.category.tr(),
-                        border: InputBorder.none)),
+                _addNewCategory
+                    ? Row(
+                        children: [
+                          Container(
+                              width: MediaQuery.of(context).size.width -
+                                  (AppConstants.smallDistance + 50.w + 18),
+                              padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: ColorManager.lightPrimary,
+                                      width: 1.5.w),
+                                  borderRadius: BorderRadius.circular(20)),
+                              child: DropdownButton(
+                                borderRadius: BorderRadius.circular(10),
+                                itemHeight: 60.h,
+                                underline: Container(),
+                                items: categories?.map((item) {
+                                  return DropdownMenuItem(
+                                    value: item,
+                                    child: Text(item),
+                                  );
+                                }).toList(),
+                                onChanged: (selectedCategory) {
+                                  setState(() {
+                                    _selectedCategory = selectedCategory!;
+                                  });
+                                },
+                                value: _selectedCategory,
+                                isExpanded: true,
+                                hint: Row(
+                                  children: [
+                                    Text(
+                                      AppStrings.chooseCategory.tr(),
+                                      style: TextStyle(
+                                          color: ColorManager.primary,
+                                          fontSize: 18),
+                                    ),
+                                    SizedBox(
+                                      width: AppConstants.smallDistance,
+                                    )
+                                  ],
+                                ),
+                                icon: Icon(
+                                  Icons.arrow_drop_down_circle_outlined,
+                                  color: ColorManager.primary,
+                                ),
+                                style: TextStyle(
+                                    color: ColorManager.darkPrimary,
+                                    fontSize: 20.sp),
+                              )),
+                          SizedBox(
+                            width: AppConstants.smallDistance,
+                          ),
+                          Bounceable(
+                            duration: const Duration(milliseconds: 300),
+                            onTap: () async {
+                              await Future.delayed(
+                                  const Duration(milliseconds: 200));
+                              bool value = !_addNewCategory;
+                              _changeToAddNewCategory(value);
+                            },
+                            child: Container(
+                              height: 50.h,
+                              width: 50.w,
+                              padding: const EdgeInsets.all(0.8),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                      color: ColorManager.lightPrimary,
+                                      width: 1.5.w)),
+                              child: SvgPicture.asset(ImageAssets.addNew,
+                                  color: ColorManager.darkPrimary, width: 20.w),
+                            ),
+                          )
+                        ],
+                      )
+                    : Row(children: [
+                        Expanded(
+                          child: TextField(
+                              maxLength: 15,
+                              focusNode: _categoryFN,
+                              keyboardType: TextInputType.text,
+                              controller: _categoryEditingController,
+                              decoration: InputDecoration(
+                                  hintText: AppStrings.category.tr(),
+                                  border: InputBorder.none)),
+                        ),
+                        SizedBox(
+                          width: AppConstants.smallDistance,
+                        ),
+                        Bounceable(
+                          duration: const Duration(milliseconds: 300),
+                          onTap: () async {
+                            await Future.delayed(
+                                const Duration(milliseconds: 200));
+                            bool value = !_addNewCategory;
+                            _changeToAddNewCategory(value);
+                          },
+                          child: Container(
+                            height: 50.h,
+                            width: 50.w,
+                            margin: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.all(0.8),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                    color: ColorManager.lightPrimary,
+                                    width: 1.5.w)),
+                            child: SvgPicture.asset(ImageAssets.reload,
+                                color: ColorManager.darkPrimary, width: 10.w),
+                          ),
+                        )
+                      ]),
                 SizedBox(
                   height: AppConstants.heightBetweenElements,
                 ),
@@ -523,7 +790,7 @@ class _AddTaskState extends State<AddTask> {
                                   borderRadius: BorderRadius.circular(20)),
                               child: DropdownButton(
                                 borderRadius: BorderRadius.circular(10),
-                                itemHeight: 65.h,
+                                itemHeight: 60.h,
                                 underline: Container(),
                                 items: tasksItemsScreen?.map((item) {
                                   return DropdownMenuItem(
@@ -531,9 +798,9 @@ class _AddTaskState extends State<AddTask> {
                                     child: Text(item),
                                   );
                                 }).toList(),
-                                onChanged: (selectedAccountType) {
+                                onChanged: (selectedTask) {
                                   setState(() {
-                                    _selectedTask = selectedAccountType;
+                                    _selectedTask = selectedTask!;
                                   });
                                 },
                                 value: _selectedTask,
@@ -543,7 +810,8 @@ class _AddTaskState extends State<AddTask> {
                                     Text(
                                       AppStrings.chooseParentTask.tr(),
                                       style: TextStyle(
-                                          color: ColorManager.primary),
+                                          color: ColorManager.primary,
+                                          fontSize: 18),
                                     ),
                                     SizedBox(
                                       width: AppConstants.smallDistance,
@@ -626,25 +894,62 @@ class _AddTaskState extends State<AddTask> {
     );
   }
 
-  // Widget days(String dayName, bool checkValue, int index) {
   Widget days(int index) {
     return Column(
       children: [
         Text(
-          allDays[index]['dayName'],
+          taskDaysList[index]['nameOfDay'],
           style: TextStyle(color: ColorManager.darkPrimary, fontSize: 18.sp),
         ),
         Checkbox(
-          value: allDays[index]['checkValue'],
+          value: taskDaysList[index]['checkedDay'],
           activeColor: ColorManager.darkPrimary,
           onChanged: (value) {
             setState(() {
-              allDays[index]['checkValue'] = value;
+              taskDaysList[index]['checkedDay'] = value;
             });
           },
         )
       ],
     );
+  }
+
+  List fillDays(var daysMap) {
+    for (int index = 0; index < taskDaysList.length; index++) {
+      if (taskDaysList[index]['nameOfDay'] == daysMap['nameOfDay']) {
+        taskDaysList[index]['checkedDay'] = true;
+      }
+    }
+    return taskDaysList;
+  }
+
+  void getData(var oldTask) {
+    _taskNameEditingController.text = oldTask['taskName'];
+    _descriptionEditingController.text = oldTask['description'];
+    _selectedCategory = oldTask['category'];
+
+    oldTask['timer'] == 1 ? _timer = true : _timer = false;
+    // oldTask['timer'] == 1
+    //     ? _timeOfDay = oldTask['time']
+    //     : _timeOfDay = TimeOfDay.now();
+
+    oldTask['specificDate'] == 1 ? _specificDate = true : _specificDate = false;
+    oldTask['specificDate'] == 1
+        ? today = oldTask['date']
+        : today = DateTime.now();
+
+    oldTask['pinned'] == 1 ? _pinned = true : _pinned = false;
+
+    oldTask['nested'] == 1 ? _nested = true : _nested = false;
+    // if nested get the name by id
+
+    oldTask['counter'] == 1 ? _counter = true : _counter = false;
+    oldTask['counter'] == 1
+        ? _counterValue = oldTask['counterVal']
+        : _counterValue = 0;
+
+
+    oldTask['wheel'] == 1 ? _wheel = true : _wheel = false;
   }
 
   Widget myCounter(int index) {

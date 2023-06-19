@@ -35,6 +35,20 @@
   "Specific Date"  : "تاريخ محدد",
   "Sebha"  : "سبحة",
   "Choose Parent Task"  : "اختار المهمة",
+  "Choose Category"  : "اختار الفئة",
+
+  "Successfully Saved"  : "تم حفظ المهمة بنجاح",
+  "Successfully Updated"  : "تم تعديل المهمة بنجاح",
+
+  "Successfully Done"  : "تم إنهاء المهمة بنجاح",
+  "Successfully UnDone"  : "تم إلغاء إنهاء المهمة",
+  "Successfully Pinned"  : "تم تثبيت المهمة بنجاح",
+  "Successfully UnPinned"  : "تم إلغاء تثبيت المهمة بنجاح",
+  "Successfully Deleted"  : "تم حذف المهمة بنجاح",
+
+  "Category Alert"  : "خانة الفئة مطلوبة",
+  "Task Alert"  : "خانة اسم المهمة مطلوبة",
+  "Description Alert"  : "خانة الوصف مطلوبة",
 
   "Time" : ":الوقت المختار",
   "Date" : ":التاريخ المختار",

@@ -2,6 +2,8 @@ const String imagePath = 'assets/images';
 
 class ImageAssets {
   static const String addIcon = '$imagePath/plus-sign.png';
+  static const String addNew = '$imagePath/new.svg';
+  static const String reload = '$imagePath/reload.svg';
   static const String menuImage = '$imagePath/menu.svg';
   static const String pin_icon = '$imagePath/pin-icon.svg';
   static const String unPin_icon = '$imagePath/unpin-icon.svg';

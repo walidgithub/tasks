@@ -35,6 +35,20 @@
   "Specific Date"  : "Specific Date",
   "Sebha"  : "Sebha",
   "Choose Parent Task"  : "Choose Parent Task",
+  "Choose Category"  : "Choose Category",
+
+  "Successfully Saved"  : "Task Saved Successfully",
+  "Successfully Updated"  : "Task Updated Successfully",
+
+  "Successfully Done"  : "Task Done Successfully",
+  "Successfully UnDone"  : "Task UnDone Successfully",
+  "Successfully Pinned"  : "Task Pinned Successfully",
+  "Successfully UnPinned"  : "Task UnPinned Successfully",
+  "Successfully Deleted"  : "Task Deleted Successfully",
+
+  "Category Alert"  : "Category field required",
+  "Task Alert"  : "Task field required",
+  "Description Alert"  : "Description field required",
 
   "Time" : "Selected Time:",
   "Date" : "Selected Date:",

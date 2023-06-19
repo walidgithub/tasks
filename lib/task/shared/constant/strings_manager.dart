@@ -37,6 +37,19 @@ class AppStrings{
   static const specificDate  = 'Specific Date';
   static const sebha  = 'Sebha';
   static const chooseParentTask  = 'Choose Parent Task';
+  static const chooseCategory  = 'Choose Category';
+  static const categoryAlert  = 'Category Alert';
+  static const taskAlert  = 'Task Alert';
+  static const descriptionAlert  = 'Description Alert';
+
+  static const successfullySaved  = 'Successfully Saved';
+  static const successfullyUpdated  = 'Successfully Updated';
+
+  static const successfullyDone  = 'Successfully Done';
+  static const successfullyUnDone  = 'Successfully UnDone';
+  static const successfullyPinned  = 'Successfully Pinned';
+  static const successfullyUnPinned  = 'Successfully UnPinned';
+  static const successfullyDeleted  = 'Successfully Deleted';
 
   static const sun  = 'Sun';
   static const mon  = 'Mon';

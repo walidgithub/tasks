@@ -10,6 +10,16 @@ class TasksByCategoryArguments {
   });
 }
 
+class GoToTaskArguments {
+  String? editType;
+  int? id;
+
+  GoToTaskArguments({
+    this.editType,
+    this.id,
+  });
+}
+
 class DailyTasksArguments {
   int? id;
   String? taskName;

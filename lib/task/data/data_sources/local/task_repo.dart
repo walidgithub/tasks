@@ -3,19 +3,36 @@ import '../../../domain/entities/nested_task_model.dart';
 import '../../../domain/entities/task_days_model.dart';
 
 abstract class TaskRepository {
-  Future<List<DailyTaskModel>> loadDailyTasksByCategory(String category, String date);
-  Future<List<NestedTaskModel>> loadNestedTasksById(int taskId);
-
+  // Task Operations -----------------------------------------------------------------------
+  Future<void> addTask(DailyTaskModel dailyTaskModel);
+  Future<void> deleteTask(int taskId);
+  Future<void> updateOldTask(DailyTaskModel dailyTaskModel, int taskId);
+  Future<void> toggleDone(MakeTaskDoneModel makeItDone,int taskId);
   Future<List<String>> getTasksNames();
-  Future<List<String>> getDailyCategories(String date);
+  Future<List<String>> getAllCategories();
+  Future<DailyTaskModel> showTask(int taskId);
 
+  // Home -----------------------------------------------------------------------
+  Future<List<String>> getDailyCategories(String date);
   Future<double> getPercentForCategory(String category, String date);
+  Future<double> getPercentForHome(String date);
   Future<int> getItemsCountInCategory(String category, String date);
 
-  Future<DailyTaskModel> updateOldTask(int taskId);
-  Future<void> addTask(DailyTaskModel dailyTaskModel);
-  Future<void> addTaskDay(TaskDaysModel taskDays);
+  // Daily Tasks -----------------------------------------------------------------------
+  Future<List<DailyTaskModel>> loadDailyTasksByCategory(String category, String date);
+  Future<void> togglePinned(TogglePinnedModel togglePinned,int taskId);
+
+
+  // Nested Tasks -----------------------------------------------------------------------
+  Future<List<NestedTaskModel>> loadNestedTasksById(int taskId);
   Future<void> addNestedTask(
       NestedTaskModel nestedTaskModel, TaskDaysModel taskDays);
-  Future<void> deleteTask(int taskId);
+
+  // Task Days -----------------------------------------------------------------------
+  Future<void> addTaskDay(TaskDaysModel taskDays);
+  Future<void> deleteTaskDay(int taskId);
+  Future<List<TaskDaysModel>> showTaskDays(int taskId);
+
+  // Others -----------------------------------------------------------------------
+
 }

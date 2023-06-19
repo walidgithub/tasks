@@ -1,6 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
-
 class DailyTaskModel {
   int? id;
   String? taskName;
@@ -72,6 +69,32 @@ class DailyTaskModel {
     counter = map["counter"];
     counterVal = map["counterVal"];
     specificDate = map["specificDate"];
+  }
+}
+
+class MakeTaskDoneModel{
+  int? id;
+  int? done;
+
+  MakeTaskDoneModel({this.id,this.done});
+  Map<String, dynamic> toMap() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data["id"] = id;
+    data["done"] = done;
+    return data;
+  }
+}
+
+class TogglePinnedModel{
+  int? id;
+  int? pinned;
+
+  TogglePinnedModel({this.id,this.pinned});
+  Map<String, dynamic> toMap() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data["id"] = id;
+    data["pinned"] = pinned;
+    return data;
   }
 }
 

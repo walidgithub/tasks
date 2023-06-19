@@ -14,6 +14,7 @@ import '../../../shared/style/colors_manager.dart';
 import '../../../shared/component/home_clipper.dart';
 import '../../../shared/component/nav_bar.dart';
 import '../../router/app_router.dart';
+import '../../router/arguments.dart';
 import '../category/category.dart';
 
 class HomePageView extends StatefulWidget {
@@ -32,6 +33,8 @@ class _HomePageViewState extends State<HomePageView> {
 
   List<int> itemsCount = [];
   List<double> categoryPercent = [];
+
+  double totalPercent = 0.0;
 
   DateTime today = DateTime.now();
   String searchByToday = '';
@@ -55,7 +58,8 @@ class _HomePageViewState extends State<HomePageView> {
       body: bodyContent(size),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Navigator.of(context).pushNamed(Routes.addTask);
+          Navigator.of(context).pushReplacementNamed(Routes.goToTask,
+              arguments: GoToTaskArguments(editType: 'Add', id: 0));
         },
         backgroundColor: ColorManager.darkPrimary,
         child: const Icon(Icons.add),
@@ -74,7 +78,9 @@ class _HomePageViewState extends State<HomePageView> {
           dailyCategories = HomeCubit.get(context).categories;
           itemsCount = HomeCubit.get(context).itemsCount;
           categoryPercent = HomeCubit.get(context).categoryPercent;
-        }
+        } else if (state is LoadHomePercentState) {
+          totalPercent = HomeCubit.get(context).totalPercent;
+        } else if (state is ErrorLoadingHomePercentState) {}
       },
       builder: (context, state) {
         return Column(
@@ -112,14 +118,14 @@ class _HomePageViewState extends State<HomePageView> {
                       ),
                       radius: 80.0.h,
                       lineWidth: 10.0.w,
-                      percent: 0.6,
+                      percent: totalPercent == 0 ? 0.0 : totalPercent / 100,
                       center: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Countup(
                             begin: 0,
-                            end: 60,
-                            duration: Duration(seconds: 5),
+                            end: totalPercent == 0 ? 0.0 : totalPercent,
+                            duration: const Duration(seconds: 5),
                             style: TextStyle(
                               fontSize: 50.sp,
                             ),
@@ -203,8 +209,9 @@ class _HomePageViewState extends State<HomePageView> {
                       DateTime otherDate = date;
                       String searchByDay = '';
 
-                      String originalDate = DateTime.parse(
-                          otherDate.toString().split(" ")[0]).toString();
+                      String originalDate =
+                          DateTime.parse(otherDate.toString().split(" ")[0])
+                              .toString();
                       searchByDay = originalDate.replaceFirst(RegExp(' '), 'T');
 
                       HomeCubit.get(context).loadTasksCategories(searchByDay);

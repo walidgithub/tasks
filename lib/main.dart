@@ -69,8 +69,6 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -81,11 +79,9 @@ class _MyAppState extends State<MyApp> {
           return MultiBlocProvider(
               providers: [
                 BlocProvider(
-                    create: (context) => sl<AddTaskCubit>()..loadTasksNames()),
+                    create: (context) => sl<AddTaskCubit>()..loadTasksNames()..loadCategories()),
                 BlocProvider(
-                    create: (context) => sl<HomeCubit>()..loadTasksCategories(searchByToday)),
-                BlocProvider(
-                    create: (context) => sl<DailyTasksCubit>())
+                    create: (context) => sl<HomeCubit>()..loadTasksCategories(searchByToday)..loadTotalTasksPercent(searchByToday)),
               ],
               child: MaterialApp(
                 localizationsDelegates: context.localizationDelegates,

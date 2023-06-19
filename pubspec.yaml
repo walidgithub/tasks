@@ -89,10 +89,12 @@ flutter:
     - assets/images/drawer.jpg
     - assets/images/settings.svg
     - assets/images/scroll.svg
+    - assets/images/reload.svg
     - assets/images/star.svg
     - assets/images/report.svg
     - assets/images/about.svg
     - assets/images/share.svg
+    - assets/images/new.svg
     - assets/images/create_task.jpg
     - assets/images/manage_easily.jpg
     - assets/images/go_ahead.jpg

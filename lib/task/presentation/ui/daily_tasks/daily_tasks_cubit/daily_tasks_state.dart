@@ -17,3 +17,33 @@ class ErrorLoadingDailyTasksState extends DailyTasksState{
 
   ErrorLoadingDailyTasksState(this.errorText);
 }
+
+class UpdateTaskState extends DailyTasksState{}
+class ErrorUpdateTaskState extends DailyTasksState{
+  String errorText;
+
+  ErrorUpdateTaskState(this.errorText);
+}
+
+class DeleteTaskState extends DailyTasksState{}
+class ErrorDeleteTaskState extends DailyTasksState{
+  String errorText;
+
+  ErrorDeleteTaskState(this.errorText);
+}
+
+class PinTaskState extends DailyTasksState{}
+class UnPinTaskState extends DailyTasksState{}
+class ErrorPinTaskState extends DailyTasksState{
+  String errorText;
+
+  ErrorPinTaskState(this.errorText);
+}
+
+class MakeTaskDoneState extends DailyTasksState{}
+class UnMakeTaskDoneState extends DailyTasksState{}
+class ErrorMakeTaskDoneState extends DailyTasksState{
+  String errorText;
+
+  ErrorMakeTaskDoneState(this.errorText);
+}

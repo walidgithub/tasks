@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../shared/constant/constant_values_manager.dart';
 import '../../../shared/constant/strings_manager.dart';
 import '../../../shared/style/colors_manager.dart';
+import '../nested_tasks/nested_tasks.dart';
 
 class NestedDetails extends StatefulWidget {
   const NestedDetails({Key? key}) : super(key: key);
@@ -100,17 +101,17 @@ class _NestedDetailsState extends State<NestedDetails> {
                   ],
                 ),
                 closeOnScroll: false,
-                child: Container(),
-                // child: NestedTasks(
-                //   taskName: nestedtaskslist[index].taskName,
-                //   description: nestedtaskslist[index].description,
-                //   time: nestedtaskslist[index].time,
-                //   timer: nestedtaskslist[index].timer,
-                //   counter: nestedtaskslist[index].counter,
-                //   wheel: nestedtaskslist[index].wheel,
-                //   nested_id: nestedtaskslist[index].nested_id,
-                //   done: nestedtaskslist[index].done,
-                // ),
+                // child: Container(),
+                child: NestedTasks(
+                  taskName: 'taskName',
+                  description: 'description',
+                  time: 'time',
+                  timer: false,
+                  counter: false,
+                  wheel: false,
+                  nested_id: 1,
+                  done: false,
+                ),
               );
             },
           ),

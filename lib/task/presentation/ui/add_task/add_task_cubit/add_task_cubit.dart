@@ -12,13 +12,46 @@ class AddTaskCubit extends Cubit<AddTaskState> {
 
   static AddTaskCubit get(context) => BlocProvider.of(context);
 
-  List<String> tasksNames = [];
+  Set<String> tasksNames = {};
+  Set<String> categories = {};
 
+  // show task by id-----------------------------------------------------------------------------
+  Future<void> loadTaskById(int taskId) async {
+    try {
+      emit(LoadingPrevTask());
+
+      final res = await taskRepoImp.showTask(taskId);
+
+      await loadTaskDayByMainTaskId(taskId);
+
+      print(res.toMap());
+
+      emit(LoadedPrevTask(res));
+    } catch (e) {
+      emit(ErrorLoadingPrevTask(e.toString()));
+    }
+  }
+
+  // show task day by id-----------------------------------------------------------------------------
+  Future<void> loadTaskDayByMainTaskId(int taskId) async {
+    try {
+
+      emit(LoadingPrevTaskDay());
+
+      final res = await taskRepoImp.showTaskDays(taskId);
+
+      emit(LoadedPrevTaskDay(res));
+    } catch (e) {
+      emit(ErrorLoadingPrevTaskDay(e.toString()));
+    }
+  }
+
+  // load tasks names-----------------------------------------------------------------------------
   Future<void> loadTasksNames() async {
     try {
       emit(LoadingTasksNamesState());
       await getTasksNames().then((allTasksNames) {
-        tasksNames = allTasksNames;
+        tasksNames = allTasksNames.toSet();
       });
       emit(LoadedTasksNamesState());
     } catch (e) {
@@ -31,18 +64,72 @@ class AddTaskCubit extends Cubit<AddTaskState> {
     return res;
   }
 
-  Future<void> addNewTask(DailyTaskModel dailyTaskModel) async {
-    await taskRepoImp.addTask(dailyTaskModel);
-    emit(NewTaskSavedState());
+  // load categories----------------------------------------------------------------------------
+  Future<void> loadCategories() async {
+    try {
+      emit(LoadingCategoriesState());
+      await getAllCategories().then((allCategories) {
+        categories = allCategories.toSet();
+      });
+      emit(LoadedCategoriesState());
+    } catch (e) {
+      emit(ErrorLoadingCategoriesState(e.toString()));
+    }
   }
 
-  Future<void> addTaskDay(TaskDaysModel taskDays) async {
-    await taskRepoImp.addTaskDay(taskDays);
-    emit(NewTaskDaySavedState());
-  }
-
-  Future<List<DailyTaskModel>> loadDailyTasksByCategory(String category, String date) async {
-    final res = await taskRepoImp.loadDailyTasksByCategory(category, date);
+  Future<List<String>> getAllCategories() async {
+    final res = await taskRepoImp.getAllCategories();
     return res;
+  }
+
+  // add new task----------------------------------------------------------------------------
+  Future<void> addNewTask(DailyTaskModel dailyTaskModel) async {
+    try {
+      await taskRepoImp.addTask(dailyTaskModel);
+      emit(NewTaskSavedState());
+    } catch (e) {
+      emit(AddTaskErrorState(e.toString()));
+    }
+  }
+
+  // update new task----------------------------------------------------------------------------
+  Future<void> updateTask(DailyTaskModel dailyTaskModel, int taskId) async {
+    try {
+      await taskRepoImp.updateOldTask(dailyTaskModel, taskId);
+      emit(UpdateTaskState());
+    } catch (e) {
+      emit(ErrorUpdateTaskState(e.toString()));
+    }
+  }
+
+  // delete task----------------------------------------------------------------------------
+  Future<void> deleteTask(int taskId) async {
+    try {
+      await taskRepoImp.deleteTask(taskId);
+      await taskRepoImp.deleteTaskDay(taskId);
+      emit(DeleteTaskState());
+    } catch (e) {
+      emit(ErrorDeleteTaskState(e.toString()));
+    }
+  }
+
+  // add new task day----------------------------------------------------------------------------
+  Future<void> addTaskDay(TaskDaysModel taskDays) async {
+    try {
+      await taskRepoImp.addTaskDay(taskDays);
+      emit(NewTaskDaySavedState());
+    } catch (e) {
+      emit(AddTaskDayErrorState(e.toString()));
+    }
+  }
+
+  // delete task day----------------------------------------------------------------------------
+  Future<void> deleteTaskDays(int taskId) async {
+    try {
+      await taskRepoImp.deleteTaskDay(taskId);
+      emit(DeleteTaskDaysState());
+    } catch (e) {
+      emit(ErrorDeleteTaskDaysState(e.toString()));
+    }
   }
 }

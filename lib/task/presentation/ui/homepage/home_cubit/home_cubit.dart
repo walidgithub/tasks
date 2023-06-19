@@ -22,26 +22,7 @@ class HomeCubit extends Cubit<HomeState> {
   List<double> categoryPercent = [];
   List<int> itemsCount = [];
 
-  // -----------------------------------------------------------------------------
-  Future<void> loadDailyTasksByCategory(String category, String date) async {
-    try {
-      emit(LoadingTasksState());
-      await getAllTasks(category, date).then((allTasks) {
-        for (var v in allTasks) {
-          tasks.add(v.toMap());
-        }
-        // print(tasks);
-      });
-      emit(LoadedTasksState());
-    } catch (e) {
-      emit(ErrorLoadingTasksState(e.toString()));
-    }
-  }
-
-  Future<List<DailyTaskModel>> getAllTasks(String category, String date) async {
-    final res = await taskRepoImp.loadDailyTasksByCategory(category, date);
-    return res;
-  }
+  double totalPercent = 0.0;
 
   // -----------------------------------------------------------------------------
   Future<void> loadTasksCategories(String date) async {
@@ -72,14 +53,33 @@ class HomeCubit extends Cubit<HomeState> {
     return res;
   }
 
-  // -----------------------------------------------------------------------------
+  // Total percent-----------------------------------------------------------------------------
+  Future<void> loadTotalTasksPercent(String date) async {
+    try{
+      await getHomePercent(date).then((value) {
+        totalPercent = value;
+      });
+
+      emit(LoadHomePercentState());
+    }catch(e){
+      emit(ErrorLoadingHomePercentState(e.toString()));
+    }
+  }
+
+  Future<double> getHomePercent(String date) async {
+    final homePercent =
+    await taskRepoImp.getPercentForHome(date);
+    return homePercent;
+  }
+
+  // Category percent-----------------------------------------------------------------------------
   Future<double> getCategoryPercent(String category, String date) async {
     final categoryPercent =
         await taskRepoImp.getPercentForCategory(category, date);
     return categoryPercent;
   }
 
-  // -----------------------------------------------------------------------------
+  // Get count of category's items-----------------------------------------------------------------------------
   Future<int> getItemsCountInCategory(String category, String date) async {
     final itemsCount =
         await taskRepoImp.getItemsCountInCategory(category, date);

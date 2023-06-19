@@ -40,7 +40,7 @@ class DbHelper {
     //     'create table categories(id integer primary key autoincrement, categoryName varchar(15), percent integer)');
   }
 
-  // DailyTask----------------------------------------------------------------------------------------
+  // Task Operations----------------------------------------------------------------------------------------
 
   Future<DailyTaskModel> createTask(DailyTaskModel dailyTask) async {
     final db = _db!.database;
@@ -48,6 +48,49 @@ class DbHelper {
     insertedNewTaskId = await db.insert('tasks', dailyTask.toMap());
 
     return dailyTask;
+  }
+
+  Future<int> updateTask(DailyTaskModel dailyTask, int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    return db
+        .update('tasks', dailyTask.toMap(), where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> toggleDone(MakeTaskDoneModel makeItTask, int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    return db
+        .update('tasks', makeItTask.toMap(), where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> togglePinned(TogglePinnedModel togglePinned, int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    return db
+        .update('tasks', togglePinned.toMap(), where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<int> deleteTask(int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    return db.delete('tasks', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<List<String>> getAllTasksNames() async {
@@ -63,6 +106,36 @@ class DbHelper {
         tasksNames.length, (index) => tasksNames[index]['taskName'].toString());
   }
 
+  Future<List<String>> getAllCategories() async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    final List<Map<String, dynamic>> categories =
+    await db.rawQuery('SELECT category FROM tasks');
+    return List.generate(
+        categories.length, (index) => categories[index]['category'].toString());
+  }
+
+  Future<DailyTaskModel> showTask(int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    final maps = await db.query('tasks', where: 'id = ?', whereArgs: [id]);
+
+    if (maps.isNotEmpty) {
+      return DailyTaskModel.fromMap(maps.first);
+    } else {
+      throw Exception('Id not found');
+    }
+  }
+
+  // Home----------------------------------------------------------------------------------------
   Future<List<String>> getDailyTasksCategories(String date) async {
     if (_db == null) {
       await initDB(dbdName);
@@ -71,10 +144,23 @@ class DbHelper {
     final db = _db!.database;
 
     final List<Map<String, dynamic>> tasksCategories =
-        await db.rawQuery('SELECT * FROM tasks where date = ?', [date]);
+    await db.rawQuery('SELECT * FROM tasks where date = ?', [date]);
 
     return List.generate(tasksCategories.length,
-        (index) => tasksCategories[index]['category'].toString());
+            (index) => tasksCategories[index]['category'].toString());
+  }
+
+  Future<int> getCountOfCategoryItems(String category, String date) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    var categories = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ?', [category, date]);
+    int tasksCount = categories.length;
+
+    return tasksCount;
   }
 
   Future<double> getCategoriesPercent(String category, String date, [int doneTask = 1]) async {
@@ -95,34 +181,33 @@ class DbHelper {
     return percent;
   }
 
-  Future<int> getCountOfCategoryItems(String category, String date) async {
+  Future<double> getHomePercent(String date, [int doneTask = 1]) async {
     if (_db == null) {
       await initDB(dbdName);
     }
 
     final db = _db!.database;
 
-    var categories = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ?', [category, date]);
-    int tasksCount = categories.length;
+    var task = await db.rawQuery('SELECT * FROM tasks where date = ?', [date]);
+    int tasksCount = task.length;
 
-    return tasksCount;
-  }
-
-  Future<DailyTaskModel> showTask(int id) async {
-    final db = _db!.database;
-
-    final maps = await db.query('tasks', where: 'id = ?', whereArgs: [id]);
-
-    if (maps.isNotEmpty) {
-      return DailyTaskModel.fromMap(maps.first);
-    } else {
-      throw Exception('Id not found');
+    if (tasksCount == 0){
+      return 0;
     }
+
+    var done = await db.rawQuery('SELECT * FROM tasks where date = ? and done = ?', [date, doneTask]);
+    int doneTasksCount = done.length;
+
+    double percent = (doneTasksCount / tasksCount) * 100;
+
+    return percent;
   }
+  // Daily Tasks ---------------------------------------------------------------------------
 
   Future<List<DailyTaskModel>> loadDailyTasksByCategory(
       String category,
       String date) async {
+
     if (_db == null) {
       await initDB(dbdName);
     }
@@ -133,19 +218,6 @@ class DbHelper {
         [date, category]);
 
     return result.map((map) => DailyTaskModel.fromMap(map)).toList();
-  }
-
-  Future<int> updateTask(DailyTaskModel dailyTask, int id) async {
-    final db = _db!.database;
-
-    return db
-        .update('tasks', dailyTask.toMap(), where: 'id = ?', whereArgs: [id]);
-  }
-
-  Future<int> deleteTask(int id) async {
-    final db = _db!.database;
-
-    return db.delete('tasks', where: 'id = ?', whereArgs: [id]);
   }
 
   // NestedTask ----------------------------------------------------------------------------------------
@@ -159,6 +231,10 @@ class DbHelper {
   }
 
   Future<NestedTaskModel> showNestedTask(int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
     final db = _db!.database;
 
     final maps =
@@ -172,6 +248,10 @@ class DbHelper {
   }
 
   Future<List<NestedTaskModel>> showAllNestedTasks(int mainTaskId) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
     final db = _db!.database;
 
     final result = await db.query('nestedTasks',
@@ -181,6 +261,10 @@ class DbHelper {
   }
 
   Future<int> updateNestedTask(NestedTaskModel nestedTask, int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
     final db = _db!.database;
 
     return db.update('nestedTasks', nestedTask.toMap(),
@@ -188,6 +272,10 @@ class DbHelper {
   }
 
   Future<int> deleteNestedTask(int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
     final db = _db!.database;
 
     return db.delete('nestedTasks', where: 'id = ?', whereArgs: [id]);
@@ -203,34 +291,38 @@ class DbHelper {
     return taskDays;
   }
 
-  Future<TaskDaysModel> showTaskDays(int mainTaskId) async {
-    final db = _db!.database;
+  Future<List<TaskDaysModel>> showTaskDays(int mainTaskId) async {
 
-    final maps = await db
-        .query('taskDays', where: 'mainTaskId = ?', whereArgs: [mainTaskId]);
-
-    if (maps.isNotEmpty) {
-      return TaskDaysModel.fromMap(maps.first);
-    } else {
-      throw Exception('Id not found');
+    if (_db == null) {
+      await initDB(dbdName);
     }
-  }
 
-  Future<int> updateTaskDays(TaskDaysModel taskDays, int id) async {
     final db = _db!.database;
+    final result = await db.rawQuery(
+        'SELECT * FROM taskDays where mainTaskId = ?',
+        [mainTaskId]);
 
-    return db
-        .update('taskDays', taskDays.toMap(), where: 'id = ?', whereArgs: [id]);
+    return result.map((map) => TaskDaysModel.fromMap(map)).toList();
   }
 
   Future<int> deleteTaskDays(int mainTaskId) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
     final db = _db!.database;
 
     return db
         .delete('taskDays', where: 'mainTaskId = ?', whereArgs: [mainTaskId]);
   }
 
+  // Others -----------------------------------------------------------------------------------------------
+
   Future close() async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
     final db = _db!.database;
 
     db.close();
