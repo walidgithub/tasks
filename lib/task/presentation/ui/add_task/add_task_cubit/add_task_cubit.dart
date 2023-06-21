@@ -24,8 +24,6 @@ class AddTaskCubit extends Cubit<AddTaskState> {
 
       await loadTaskDayByMainTaskId(taskId);
 
-      print(res.toMap());
-
       emit(LoadedPrevTask(res));
     } catch (e) {
       emit(ErrorLoadingPrevTask(e.toString()));

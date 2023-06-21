@@ -33,31 +33,12 @@ class _DailyTasksState extends State<DailyTasks> {
     return 1 / value;
   }
 
-  int? _pinned;
-
-  void _togglePinned(value) {
-    if (value == 1) {
-      _pinned = 0;
-    } else {
-      _pinned = 1;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    _pinned = widget.arguments.pinned;
     return BlocProvider(
       create: (context) => sl<DailyTasksCubit>(),
       child: BlocConsumer<DailyTasksCubit, DailyTasksState>(
         listener: (context, state) {
-          if (state is PinTaskState) {
-            final snackBar = SnackBar(
-              content: Text(AppStrings.successfullyPinned.tr()),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          }else if(state is ErrorPinTaskState) {
-
-          }
         },
         builder: (context, state) {
           return Padding(
@@ -232,104 +213,6 @@ class _DailyTasksState extends State<DailyTasks> {
                             ),
                           ),
                         ),
-                        Expanded(
-                          flex: widget.arguments.nested == 1 ? 2 : 1,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Bounceable(
-                                  duration: const Duration(milliseconds: 100),
-                                  onTap: () async {
-                                    await Future.delayed(
-                                        const Duration(milliseconds: 100));
-
-                                    _togglePinned(_pinned);
-
-                                    await DailyTasksCubit.get(context).togglePinned(
-                                        TogglePinnedModel(
-                                            pinned: _pinned,
-                                            id: widget.arguments.id!),
-                                        widget.arguments.id!);
-                                  },
-                                  child: SvgPicture.asset(
-                                      _pinned == 1
-                                          ? ImageAssets.pin_icon
-                                          : ImageAssets.unPin_icon,
-                                      color: ColorManager.basic,
-                                      width: 25.w)),
-                              widget.arguments.nested == 1
-                                  ? Column(
-                                children: [
-                                  SizedBox(
-                                    height: AppConstants.smallDistance,
-                                  ),
-                                  CircularPercentIndicator(
-                                    radius: 25.0.h,
-                                    lineWidth: 5.0.w,
-                                    percent: widget.arguments.nestedVal == 0
-                                        ? 0.0
-                                        : widget.arguments.nestedVal! / 100,
-                                    center: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.center,
-                                      children: [
-                                        Countup(
-                                          begin: 0,
-                                          end: widget.arguments.nestedVal ==
-                                              0
-                                              ? 0.0
-                                              : checkDouble(widget
-                                              .arguments.nestedVal),
-                                          duration:
-                                          const Duration(seconds: 5),
-                                          style: TextStyle(
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          '%',
-                                          style: TextStyle(fontSize: 10.sp),
-                                        )
-                                      ],
-                                    ),
-                                    backgroundColor: ColorManager.accent,
-                                    progressColor: ColorManager.basic,
-                                    circularStrokeCap:
-                                    CircularStrokeCap.round,
-                                    animation: true,
-                                    animationDuration: 6000,
-                                    curve: Curves.easeInOut,
-                                  )
-                                ],
-                              )
-                                  : Container()
-                            ],
-                          ),
-                        ),
-                        widget.arguments.nested == 1
-                            ? Expanded(
-                          flex: 1,
-                          child: Column(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Bounceable(
-                                  duration:
-                                  const Duration(milliseconds: 300),
-                                  onTap: () async {
-                                    await Future.delayed(
-                                        const Duration(milliseconds: 200));
-                                  },
-                                  child: Icon(
-                                      Icons.arrow_circle_right_outlined,
-                                      color: ColorManager.basic)),
-                            ],
-                          ),
-                        )
-                            : Padding(
-                          padding: const EdgeInsets.only(right: 15),
-                          child: Container(),
-                        )
                       ],
                     )),
               ],

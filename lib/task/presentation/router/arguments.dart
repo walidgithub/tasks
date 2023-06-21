@@ -2,11 +2,13 @@ class TasksByCategoryArguments {
   String? category;
   int? countOfItems;
   String? tasksDate;
+  String? tasksDay;
 
   TasksByCategoryArguments({
     this.category,
     this.countOfItems,
     this.tasksDate,
+    this.tasksDay,
   });
 }
 
@@ -28,8 +30,6 @@ class DailyTasksArguments {
   int? timer;
   int? pinned;
   int? done;
-  int? nested;
-  int? nestedVal;
   int? wheel;
   int? counter;
   int? counterVal;
@@ -43,9 +43,7 @@ class DailyTasksArguments {
     this.pinned,
     this.done,
     this.counter,
-    this.nested,
     this.wheel,
-    this.nestedVal,
     this.counterVal,
   });
 }

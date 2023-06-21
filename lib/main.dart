@@ -11,7 +11,6 @@ import 'package:tasks/task/presentation/ui/add_task/add_task_cubit/add_task_cubi
 import 'package:tasks/task/presentation/ui/daily_tasks/daily_tasks_cubit/daily_tasks_cubit.dart';
 import 'package:tasks/task/presentation/ui/homepage/home_cubit/home_cubit.dart';
 import 'package:tasks/task/presentation/ui/homepage/homepage_view.dart';
-import 'package:tasks/task/presentation/ui/nested_details/nested_details.dart';
 import 'package:tasks/task/presentation/ui/on_boarding/onborading_view.dart';
 import 'package:tasks/task/presentation/ui/splash_view/splash_view.dart';
 import 'package:tasks/task/presentation/ui/tasks_by_category/tasks_by_category.dart';
@@ -52,9 +51,14 @@ class _MyAppState extends State<MyApp> {
 
   DateTime today = DateTime.now();
   String searchByToday = '';
+  String subOfDayOfToday = '';
 
   @override
   void initState() {
+
+    String dayOfToday = DateFormat('EEEE').format(today);
+    subOfDayOfToday = dayOfToday.substring(0,3);
+
     _themeManager.addListener(themeListener);
 
     String originalDate = DateTime.parse(
@@ -81,7 +85,7 @@ class _MyAppState extends State<MyApp> {
                 BlocProvider(
                     create: (context) => sl<AddTaskCubit>()..loadTasksNames()..loadCategories()),
                 BlocProvider(
-                    create: (context) => sl<HomeCubit>()..loadTasksCategories(searchByToday)..loadTotalTasksPercent(searchByToday)),
+                    create: (context) => sl<HomeCubit>()..loadTasksCategories(searchByToday, subOfDayOfToday)..loadTotalTasksPercent(searchByToday)),
               ],
               child: MaterialApp(
                 localizationsDelegates: context.localizationDelegates,

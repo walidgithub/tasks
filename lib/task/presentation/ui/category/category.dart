@@ -17,13 +17,16 @@ class Category extends StatefulWidget {
   final double percent;
   final int itemsCount;
   final String tasksDate;
+  final String tasksDay;
 
   const Category(
       {super.key,
       required this.name,
       required this.percent,
       required this.itemsCount,
-      required this.tasksDate});
+      required this.tasksDate,
+      required this.tasksDay,
+      });
 
   @override
   State<Category> createState() => _CategoryState();
@@ -43,7 +46,9 @@ class _CategoryState extends State<Category> {
                 arguments: TasksByCategoryArguments(
                     category: widget.name,
                     countOfItems: widget.itemsCount,
-                    tasksDate: widget.tasksDate));
+                    tasksDate: widget.tasksDate,
+                    tasksDay: widget.tasksDay
+                ));
 
             // load tasks by category and date
 

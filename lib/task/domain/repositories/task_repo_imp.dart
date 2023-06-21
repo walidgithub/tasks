@@ -1,4 +1,3 @@
-import 'package:tasks/task/domain/entities/nested_task_model.dart';
 import 'package:tasks/task/domain/entities/task_days_model.dart';
 
 import '../../data/data_sources/local/task_repo.dart';
@@ -85,25 +84,6 @@ class TaskRepoImp extends TaskRepository {
     return res;
   }
 
-  @override
-  Future<void> togglePinned(TogglePinnedModel togglePinned, int taskId) async {
-    await _dbHelper.togglePinned(togglePinned, taskId);
-  }
-
-  // Nested Tasks -----------------------------------------------------------------------
-  @override
-  Future<void> addNestedTask(
-      NestedTaskModel nestedTaskModel, TaskDaysModel taskDays) async {
-    await _dbHelper.createNestedTask(nestedTaskModel);
-    await _dbHelper.createTaskDays(taskDays);
-  }
-
-  @override
-  Future<List<NestedTaskModel>> loadNestedTasksById(int taskId) {
-    // TODO: implement getNestedTasks
-    throw UnimplementedError();
-  }
-
   // Task Days -----------------------------------------------------------------------
   @override
   Future<void> addTaskDay(TaskDaysModel taskDays) async {
@@ -119,6 +99,37 @@ class TaskRepoImp extends TaskRepository {
   @override
   Future<void> deleteTaskDay(int taskId) async {
     await _dbHelper.deleteTaskDays(taskId);
+  }
+
+  // Pinned Tasks -----------------------------------------------------------------------
+  @override
+  Future<int> getCountOfCategoryPinnedItems(String category, String day) async {
+    final res = await _dbHelper.getCountOfCategoryPinnedItems(category, day);
+    return res;
+  }
+
+  @override
+  Future<List<TaskDaysModel>> loadPinnedTasksByCategoryAndDay(String category, String day) async {
+    final res = await _dbHelper.loadPinnedTasksByCategoryAndDay(category, day);
+    return res;
+  }
+
+  @override
+  Future<List<String>> loadPinnedByCategoryDay(String day) async {
+    final res = await _dbHelper.loadPinnedByCategoryDay(day);
+    return res;
+  }
+
+  @override
+  Future<DailyTaskModel> showTaskByDayAndId(int id) async {
+    final res = await _dbHelper.showTaskByDayAndId(id);
+    return res;
+  }
+
+  @override
+  Future<void> toggleDoneByDay(
+      MakeTaskDoneByDayModel makeItDone, String day, int taskId) async {
+    await _dbHelper.toggleDoneByDay(makeItDone,day , taskId);
   }
 
   // Others -----------------------------------------------------------------------

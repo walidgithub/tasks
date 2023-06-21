@@ -8,8 +8,6 @@ class DailyTaskModel {
   int? timer;
   int? pinned;
   int? done;
-  int? nested;
-  int? nestedVal;
   int? wheel;
   int? counter;
   int? counterVal;
@@ -26,9 +24,7 @@ class DailyTaskModel {
     this.pinned,
     this.done,
     this.counter,
-    this.nested,
     this.wheel,
-    this.nestedVal,
     this.counterVal,
     this.specificDate,
   });
@@ -44,8 +40,6 @@ class DailyTaskModel {
     data["taskName"] = taskName;
     data["time"] = time.toString();
     data["timer"] = timer;
-    data["nested"] = nested;
-    data["nestedVal"] = nestedVal;
     data["wheel"] = wheel;
     data["counter"] = counter;
     data["counterVal"] = counterVal;
@@ -63,8 +57,6 @@ class DailyTaskModel {
     taskName = map["taskName"];
     time = map["time"];
     timer = map["timer"];
-    nested = map["nested"];
-    nestedVal = map["nestedVal"];
     wheel = map["wheel"];
     counter = map["counter"];
     counterVal = map["counterVal"];
@@ -72,11 +64,11 @@ class DailyTaskModel {
   }
 }
 
-class MakeTaskDoneModel{
+class MakeTaskDoneModel {
   int? id;
   int? done;
 
-  MakeTaskDoneModel({this.id,this.done});
+  MakeTaskDoneModel({this.id, this.done});
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data["id"] = id;
@@ -84,17 +76,3 @@ class MakeTaskDoneModel{
     return data;
   }
 }
-
-class TogglePinnedModel{
-  int? id;
-  int? pinned;
-
-  TogglePinnedModel({this.id,this.pinned});
-  Map<String, dynamic> toMap() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data["id"] = id;
-    data["pinned"] = pinned;
-    return data;
-  }
-}
-

@@ -156,29 +156,12 @@ class _AddTaskState extends State<AddTask> {
     });
   }
 
-  bool _nested = false;
-
-  Future<void> _changeToNested(value) async {
-    setState(() {
-      _nested = value;
-      if (_nested) {
-        _counter = false;
-        _wheel = false;
-        scrollController.animateTo(
-            scrollController.position.maxScrollExtent + 120,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.linear);
-      }
-    });
-  }
-
   bool _counter = false;
 
   void _changeToCounter(value) {
     setState(() {
       _counter = value;
       if (_counter) {
-        _nested = false;
         _wheel = false;
         scrollController.animateTo(
             scrollController.position.maxScrollExtent + 120,
@@ -194,7 +177,6 @@ class _AddTaskState extends State<AddTask> {
     setState(() {
       _wheel = value;
       if (_counter) {
-        _nested = false;
         _counter = false;
       }
     });
@@ -288,12 +270,12 @@ class _AddTaskState extends State<AddTask> {
                               checkedDaysCount++;
                             }
                           }
-                          if (checkedDaysCount == 7){
+                          if (checkedDaysCount == 7) {
                             _pinned = false;
                           }
                         }
 
-                          // -------------------------------------------------------------------------
+                        // -------------------------------------------------------------------------
 
                         if (_pinned) {
                           // add new pinned task
@@ -314,8 +296,6 @@ class _AddTaskState extends State<AddTask> {
                               counter: _counter ? 1 : 0,
                               time: _timeOfDay.format(context).toString(),
                               counterVal: _counterValue,
-                              nested: _nested ? 1 : 0,
-                              nestedVal: 0,
                               specificDate: _specificDate ? 1 : 0,
                               wheel: _wheel ? 1 : 0);
 
@@ -339,6 +319,9 @@ class _AddTaskState extends State<AddTask> {
                                     nameOfDay: selectedDay['nameOfDay'],
                                     checkedDay:
                                         selectedDay['checkedDay'] ? 1 : 0,
+                                    category: _addNewCategory
+                                        ? _selectedCategory
+                                        : _categoryEditingController.text,
                                     mainTaskId: widget.arguments.id);
 
                                 await AddTaskCubit.get(context)
@@ -353,6 +336,9 @@ class _AddTaskState extends State<AddTask> {
                                     nameOfDay: selectedDay['nameOfDay'],
                                     checkedDay:
                                         selectedDay['checkedDay'] ? 1 : 0,
+                                    category: _addNewCategory
+                                        ? _selectedCategory
+                                        : _categoryEditingController.text,
                                     mainTaskId: DbHelper.insertedNewTaskId);
 
                                 await AddTaskCubit.get(context)
@@ -382,8 +368,6 @@ class _AddTaskState extends State<AddTask> {
                               counter: _counter ? 1 : 0,
                               time: _timeOfDay.format(context).toString(),
                               counterVal: _counterValue,
-                              nested: _nested ? 1 : 0,
-                              nestedVal: 0,
                               specificDate: _specificDate ? 1 : 0,
                               wheel: _wheel ? 1 : 0);
                           if (widget.arguments.editType! == 'Edit') {
@@ -556,6 +540,7 @@ class _AddTaskState extends State<AddTask> {
                                   const Duration(milliseconds: 200));
                               bool value = !_addNewCategory;
                               _changeToAddNewCategory(value);
+                              _categoryFN.requestFocus();
                             },
                             child: Container(
                               height: 50.h,
@@ -765,74 +750,7 @@ class _AddTaskState extends State<AddTask> {
                         ],
                       )
                     : Container(),
-                SwitchListTile(
-                  title: Text(AppStrings.nestedTask.tr(),
-                      style: TextStyle(
-                          color: ColorManager.darkPrimary, fontSize: 20.sp)),
-                  activeTrackColor: ColorManager.lightPrimary,
-                  activeColor: ColorManager.darkPrimary,
-                  secondary: const Icon(Icons.arrow_circle_right_outlined),
-                  value: _nested,
-                  onChanged: (value) {
-                    _changeToNested(value);
-                  },
-                ),
-                _nested
-                    ? Column(
-                        children: [
-                          Container(
-                              width: MediaQuery.of(context).size.width,
-                              padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: ColorManager.lightPrimary,
-                                      width: 1.5.w),
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: DropdownButton(
-                                borderRadius: BorderRadius.circular(10),
-                                itemHeight: 60.h,
-                                underline: Container(),
-                                items: tasksItemsScreen?.map((item) {
-                                  return DropdownMenuItem(
-                                    value: item,
-                                    child: Text(item),
-                                  );
-                                }).toList(),
-                                onChanged: (selectedTask) {
-                                  setState(() {
-                                    _selectedTask = selectedTask!;
-                                  });
-                                },
-                                value: _selectedTask,
-                                isExpanded: true,
-                                hint: Row(
-                                  children: [
-                                    Text(
-                                      AppStrings.chooseParentTask.tr(),
-                                      style: TextStyle(
-                                          color: ColorManager.primary,
-                                          fontSize: 18),
-                                    ),
-                                    SizedBox(
-                                      width: AppConstants.smallDistance,
-                                    )
-                                  ],
-                                ),
-                                icon: Icon(
-                                  Icons.arrow_drop_down_circle_outlined,
-                                  color: ColorManager.primary,
-                                ),
-                                style: TextStyle(
-                                    color: ColorManager.darkPrimary,
-                                    fontSize: 20.sp),
-                              )),
-                          Divider(
-                            color: ColorManager.darkPrimary,
-                            thickness: 1,
-                          )
-                        ],
-                      )
-                    : Container(),
+
                 SwitchListTile(
                   title: Text(AppStrings.withCounter.tr(),
                       style: TextStyle(
@@ -856,6 +774,8 @@ class _AddTaskState extends State<AddTask> {
                               color: ColorManager.accent, width: 2.0.w),
                         ),
                         child: ListWheelScrollView.useDelegate(
+                            controller: FixedExtentScrollController(
+                                initialItem: _counterValue!),
                             onSelectedItemChanged: (value) {
                               setState(() {
                                 _counterValue = value + 1;
@@ -929,27 +849,29 @@ class _AddTaskState extends State<AddTask> {
     _selectedCategory = oldTask['category'];
 
     oldTask['timer'] == 1 ? _timer = true : _timer = false;
-    // oldTask['timer'] == 1
-    //     ? _timeOfDay = oldTask['time']
-    //     : _timeOfDay = TimeOfDay.now();
+    oldTask['timer'] == 1
+        ? _timeOfDay = getTime(oldTask['time'])
+        : _timeOfDay = TimeOfDay.now();
 
     oldTask['specificDate'] == 1 ? _specificDate = true : _specificDate = false;
-    oldTask['specificDate'] == 1
-        ? today = oldTask['date']
-        : today = DateTime.now();
+    oldTask['specificDate'] == 1 ? today = getDate(oldTask['date']) : today;
 
     oldTask['pinned'] == 1 ? _pinned = true : _pinned = false;
 
-    oldTask['nested'] == 1 ? _nested = true : _nested = false;
-    // if nested get the name by id
-
     oldTask['counter'] == 1 ? _counter = true : _counter = false;
     oldTask['counter'] == 1
-        ? _counterValue = oldTask['counterVal']
+        ? _counterValue = oldTask['counterVal'] - 1
         : _counterValue = 0;
 
-
     oldTask['wheel'] == 1 ? _wheel = true : _wheel = false;
+  }
+
+  DateTime getDate(String date) {
+    return DateTime.parse(date);
+  }
+
+  TimeOfDay getTime(String time) {
+    return TimeOfDay.fromDateTime(DateFormat.jm().parse(time));
   }
 
   Widget myCounter(int index) {

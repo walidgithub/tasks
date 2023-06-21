@@ -32,7 +32,6 @@ class AppStrings{
   static const date  = 'Date';
   static const withTimer  = 'With Timer';
   static const pinnedTask  = 'Pinned Task';
-  static const nestedTask  = 'Nested Task';
   static const withCounter  = 'With Counter';
   static const specificDate  = 'Specific Date';
   static const sebha  = 'Sebha';

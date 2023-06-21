@@ -21,19 +21,28 @@ class HomeCubit extends Cubit<HomeState> {
 
   List<double> categoryPercent = [];
   List<int> itemsCount = [];
+  List<int> pinnedItemsCount = [];
 
   double totalPercent = 0.0;
 
   // -----------------------------------------------------------------------------
-  Future<void> loadTasksCategories(String date) async {
+  Future<void> loadTasksCategories(String date, String day) async {
     try {
       emit(LoadingCategoriesState());
       await getDailyCategories(date).then((allDailyCategories) async {
         categories = allDailyCategories.toSet();
 
+        await loadPinnedByCategoryDay(day).then((allPinnedCategory) async {
+            categories.addAll(allPinnedCategory);
+        });
+
         for (var category in categories) {
           await getItemsCountInCategory(category, date).then((count) {
             itemsCount.add(count);
+          });
+
+          await getPinnedItemsCountInCategory(category, day).then((count) {
+            pinnedItemsCount.add(count);
           });
 
           await getCategoryPercent(category, date).then((percent) {
@@ -85,4 +94,17 @@ class HomeCubit extends Cubit<HomeState> {
         await taskRepoImp.getItemsCountInCategory(category, date);
     return itemsCount;
   }
+
+  // Get count of category's pinned items-----------------------------------------------------------------------------
+  Future<int> getPinnedItemsCountInCategory(String category, String day) async {
+    final itemsCount =
+    await taskRepoImp.getCountOfCategoryPinnedItems(category, day);
+    return itemsCount;
+  }
+
+  Future<List<String>> loadPinnedByCategoryDay(String day) async {
+    final res = await taskRepoImp.loadPinnedByCategoryDay(day);
+    return res;
+  }
+
 }

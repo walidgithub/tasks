@@ -42,9 +42,13 @@ class _TasksByCategoryState extends State<TasksByCategory> {
   void executeToggleDone(BuildContext context, int index) {
     _toggleDone(_done);
 
-    DailyTasksCubit.get(context).toggleDone(
-        MakeTaskDoneModel(done: _done, id: loadedTasks[index]['id']),
-        loadedTasks[index]['id']);
+    if (loadedTasks[index]['pinned'] == 0) {
+      DailyTasksCubit.get(context).toggleDone(
+          MakeTaskDoneModel(done: _done, id: loadedTasks[index]['id']),
+          loadedTasks[index]['id']);
+    } else if (loadedTasks[index]['pinned'] == 1) {
+
+    }
   }
 
   void deleteTask(BuildContext context, int index) {
@@ -110,8 +114,8 @@ class _TasksByCategoryState extends State<TasksByCategory> {
   Widget bodyContent(BuildContext context) {
     return BlocProvider(
       create: (context) => sl<DailyTasksCubit>()
-        ..executeLoadingTasksByCategory(
-            widget.arguments.category!, widget.arguments.tasksDate!),
+        ..executeLoadingTasksByCategory(widget.arguments.category!,
+            widget.arguments.tasksDate!, widget.arguments.tasksDay!),
       child: BlocConsumer<DailyTasksCubit, DailyTasksState>(
         listener: (context, state) {
           if (state is LoadingDailyTasksState) {
@@ -172,13 +176,15 @@ class _TasksByCategoryState extends State<TasksByCategory> {
                                     : Icons.check,
                                 label: _done == 1 ? 'UnDone' : 'Done',
                               ),
-                              _done == 0 ? SlidableAction(
-                                  onPressed: (context) => editTask(context, index),
-                                  backgroundColor: ColorManager.accent,
-                                  foregroundColor: ColorManager.basic,
-                                  icon: Icons.edit,
-                                  label: 'Edit') : Container()
-                              ,
+                              _done == 0
+                                  ? SlidableAction(
+                                      onPressed: (context) =>
+                                          editTask(context, index),
+                                      backgroundColor: ColorManager.accent,
+                                      foregroundColor: ColorManager.basic,
+                                      icon: Icons.edit,
+                                      label: 'Edit')
+                                  : Container(),
                             ],
                           ),
                           endActionPane: ActionPane(
@@ -195,13 +201,10 @@ class _TasksByCategoryState extends State<TasksByCategory> {
                             ],
                           ),
                           closeOnScroll: false,
-                          // child: Container(),
                           child: DailyTasks(
                             arguments: DailyTasksArguments(
                                 id: loadedTasks[index]['id'],
                                 wheel: loadedTasks[index]['wheel'],
-                                nestedVal: loadedTasks[index]['nestedVal'],
-                                nested: loadedTasks[index]['nested'],
                                 counterVal: loadedTasks[index]['counterVal'],
                                 counter: loadedTasks[index]['counter'],
                                 description: loadedTasks[index]['description'],

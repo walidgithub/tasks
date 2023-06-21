@@ -1,6 +1,5 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:tasks/task/domain/entities/nested_task_model.dart';
 import 'package:tasks/task/domain/entities/task_days_model.dart';
 import '../../domain/entities/daily_task_model.dart';
 
@@ -9,7 +8,7 @@ class DbHelper {
 
   static int? insertedNewTaskId;
 
-  String dbdName = 'tasksDb6.db';
+  String dbdName = 'tasksDb10.db';
 
   Future<Database> get database async {
     if (_db != null) {
@@ -28,16 +27,10 @@ class DbHelper {
 
   Future createDB(Database db, int version) async {
     await db.execute(
-        'create table tasks(id integer primary key autoincrement, taskName varchar(15), description varchar(255), category varchar(15), date TEXT NOT NULL, time TEXT NOT NULL, timer integer not null, pinned integer not null, counter integer not null, nested integer not null, wheel integer not null, nestedVal integer, counterVal integer, done integer not null, specificDate integer not null)');
+        'create table tasks(id integer primary key autoincrement, taskName varchar(15), description varchar(255), category varchar(15), date TEXT NOT NULL, time TEXT NOT NULL, timer integer not null, pinned integer not null, counter integer not null, wheel integer not null, counterVal integer, done integer not null, specificDate integer not null)');
 
     await db.execute(
-        'create table nestedTasks(id integer primary key autoincrement, mainTaskId integer, taskName varchar(15), description varchar(255), category varchar(15), date TEXT NOT NULL, time TEXT NOT NULL, timer integer not null, pinned integer not null, counter integer not null, wheel integer not null, counterVal integer, done integer not null, specificDate integer not null)');
-
-    await db.execute(
-        'create table taskDays(id integer primary key autoincrement, mainTaskId integer, nameOfDay varchar(3), checkedDay integer not null)');
-
-    // await db.execute(
-    //     'create table categories(id integer primary key autoincrement, categoryName varchar(15), percent integer)');
+        'create table taskDays(id integer primary key autoincrement, category varchar(15), mainTaskId integer, nameOfDay varchar(3), checkedDay integer not null, done integer not null, date TEXT NOT NULL)');
   }
 
   // Task Operations----------------------------------------------------------------------------------------
@@ -72,17 +65,6 @@ class DbHelper {
         .update('tasks', makeItTask.toMap(), where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<int> togglePinned(TogglePinnedModel togglePinned, int id) async {
-    if (_db == null) {
-      await initDB(dbdName);
-    }
-
-    final db = _db!.database;
-
-    return db
-        .update('tasks', togglePinned.toMap(), where: 'id = ?', whereArgs: [id]);
-  }
-
   Future<int> deleteTask(int id) async {
     if (_db == null) {
       await initDB(dbdName);
@@ -114,7 +96,7 @@ class DbHelper {
     final db = _db!.database;
 
     final List<Map<String, dynamic>> categories =
-    await db.rawQuery('SELECT category FROM tasks');
+        await db.rawQuery('SELECT category FROM tasks');
     return List.generate(
         categories.length, (index) => categories[index]['category'].toString());
   }
@@ -143,11 +125,11 @@ class DbHelper {
 
     final db = _db!.database;
 
-    final List<Map<String, dynamic>> tasksCategories =
-    await db.rawQuery('SELECT * FROM tasks where date = ?', [date]);
+    final List<Map<String, dynamic>> tasksCategories = await db
+        .rawQuery('SELECT * FROM tasks where date = ? and pinned = 0', [date]);
 
     return List.generate(tasksCategories.length,
-            (index) => tasksCategories[index]['category'].toString());
+        (index) => tasksCategories[index]['category'].toString());
   }
 
   Future<int> getCountOfCategoryItems(String category, String date) async {
@@ -157,23 +139,30 @@ class DbHelper {
 
     final db = _db!.database;
 
-    var categories = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ?', [category, date]);
+    var categories = await db.rawQuery(
+        'SELECT * FROM tasks where category = ? and pinned = 0 and date = ?',
+        [category, date]);
     int tasksCount = categories.length;
 
     return tasksCount;
   }
 
-  Future<double> getCategoriesPercent(String category, String date, [int doneTask = 1]) async {
+  Future<double> getCategoriesPercent(String category, String date,
+      [int doneTask = 1]) async {
     if (_db == null) {
       await initDB(dbdName);
     }
 
     final db = _db!.database;
 
-    var task = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ?', [category, date]);
+    var task = await db.rawQuery(
+        'SELECT * FROM tasks where category = ? and date = ?',
+        [category, date]);
     int tasksCount = task.length;
 
-    var done = await db.rawQuery('SELECT * FROM tasks where category = ? and date = ? and done = ?', [category, date, doneTask]);
+    var done = await db.rawQuery(
+        'SELECT * FROM tasks where category = ? and date = ? and done = ?',
+        [category, date, doneTask]);
     int doneTasksCount = done.length;
 
     double percent = (doneTasksCount / tasksCount) * 100;
@@ -191,11 +180,12 @@ class DbHelper {
     var task = await db.rawQuery('SELECT * FROM tasks where date = ?', [date]);
     int tasksCount = task.length;
 
-    if (tasksCount == 0){
+    if (tasksCount == 0) {
       return 0;
     }
 
-    var done = await db.rawQuery('SELECT * FROM tasks where date = ? and done = ?', [date, doneTask]);
+    var done = await db.rawQuery(
+        'SELECT * FROM tasks where date = ? and done = ?', [date, doneTask]);
     int doneTasksCount = done.length;
 
     double percent = (doneTasksCount / tasksCount) * 100;
@@ -205,82 +195,18 @@ class DbHelper {
   // Daily Tasks ---------------------------------------------------------------------------
 
   Future<List<DailyTaskModel>> loadDailyTasksByCategory(
-      String category,
-      String date) async {
-
+      String category, String date) async {
     if (_db == null) {
       await initDB(dbdName);
     }
 
     final db = _db!.database;
     final result = await db.rawQuery(
-        'SELECT * FROM tasks where date = ? and category = ? Order by id ASC',
+        'SELECT * FROM tasks where date = ? and category = ? and pinned = 0 Order by id DESC',
         [date, category]);
 
     return result.map((map) => DailyTaskModel.fromMap(map)).toList();
   }
-
-  // NestedTask ----------------------------------------------------------------------------------------
-
-  Future<NestedTaskModel> createNestedTask(NestedTaskModel nestedTask) async {
-    final db = _db!.database;
-
-    await db.insert('nestedTasks', nestedTask.toMap());
-
-    return nestedTask;
-  }
-
-  Future<NestedTaskModel> showNestedTask(int id) async {
-    if (_db == null) {
-      await initDB(dbdName);
-    }
-
-    final db = _db!.database;
-
-    final maps =
-        await db.query('nestedTasks', where: 'id = ?', whereArgs: [id]);
-
-    if (maps.isNotEmpty) {
-      return NestedTaskModel.fromMap(maps.first);
-    } else {
-      throw Exception('Id not found');
-    }
-  }
-
-  Future<List<NestedTaskModel>> showAllNestedTasks(int mainTaskId) async {
-    if (_db == null) {
-      await initDB(dbdName);
-    }
-
-    final db = _db!.database;
-
-    final result = await db.query('nestedTasks',
-        where: 'mainTaskId = ?', whereArgs: [mainTaskId], orderBy: 'id ASC');
-
-    return result.map((map) => NestedTaskModel.fromMap(map)).toList();
-  }
-
-  Future<int> updateNestedTask(NestedTaskModel nestedTask, int id) async {
-    if (_db == null) {
-      await initDB(dbdName);
-    }
-
-    final db = _db!.database;
-
-    return db.update('nestedTasks', nestedTask.toMap(),
-        where: 'id = ?', whereArgs: [id]);
-  }
-
-  Future<int> deleteNestedTask(int id) async {
-    if (_db == null) {
-      await initDB(dbdName);
-    }
-
-    final db = _db!.database;
-
-    return db.delete('nestedTasks', where: 'id = ?', whereArgs: [id]);
-  }
-
   //  TaskDays ----------------------------------------------------------------------------------------
 
   Future<TaskDaysModel> createTaskDays(TaskDaysModel taskDays) async {
@@ -292,15 +218,13 @@ class DbHelper {
   }
 
   Future<List<TaskDaysModel>> showTaskDays(int mainTaskId) async {
-
     if (_db == null) {
       await initDB(dbdName);
     }
 
     final db = _db!.database;
-    final result = await db.rawQuery(
-        'SELECT * FROM taskDays where mainTaskId = ?',
-        [mainTaskId]);
+    final result = await db
+        .rawQuery('SELECT * FROM taskDays where mainTaskId = ?', [mainTaskId]);
 
     return result.map((map) => TaskDaysModel.fromMap(map)).toList();
   }
@@ -314,6 +238,79 @@ class DbHelper {
 
     return db
         .delete('taskDays', where: 'mainTaskId = ?', whereArgs: [mainTaskId]);
+  }
+
+  // Pinned Tasks
+
+  Future<List<TaskDaysModel>> loadPinnedTasksByCategoryAndDay(
+      String category, String day) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+    final result = await db.rawQuery(
+        'SELECT * FROM taskDays where nameOfDay = ? and category = ? Order by id ASC',
+        [day, category]);
+
+    return result.map((map) => TaskDaysModel.fromMap(map)).toList();
+  }
+
+  Future<int> getCountOfCategoryPinnedItems(String category, String day) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    var categories = await db.rawQuery(
+        'SELECT * FROM taskDays where category = ? and nameOfDay = ?',
+        [category, day]);
+    int tasksCount = categories.length;
+
+    return tasksCount;
+  }
+
+  Future<DailyTaskModel> showTaskByDayAndId(int id) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    final maps = await db.query('tasks', where: 'id = ?', whereArgs: [id]);
+
+    if (maps.isNotEmpty) {
+      return DailyTaskModel.fromMap(maps.first);
+    } else {
+      throw Exception('Id not found');
+    }
+  }
+
+  Future<List<String>> loadPinnedByCategoryDay(String day) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    final List<Map<String, dynamic>> tasksCategories =
+        await db.rawQuery('SELECT * FROM taskDays where nameOfDay = ?', [day]);
+
+    return List.generate(tasksCategories.length,
+        (index) => tasksCategories[index]['category'].toString());
+  }
+
+  Future<int> toggleDoneByDay(
+      MakeTaskDoneByDayModel makeItTask, String day, int taskId) async {
+    if (_db == null) {
+      await initDB(dbdName);
+    }
+
+    final db = _db!.database;
+
+    return db.update('taskDays', makeItTask.toMap(),
+        where: 'mainTaskId = ?, nameOfDay = ?', whereArgs: [taskId, day]);
   }
 
   // Others -----------------------------------------------------------------------------------------------

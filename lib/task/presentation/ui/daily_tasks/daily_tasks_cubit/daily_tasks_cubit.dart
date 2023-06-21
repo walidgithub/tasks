@@ -15,8 +15,9 @@ class DailyTasksCubit extends Cubit<DailyTasksState> {
   var dailyTasks = [];
 
   Future<void> executeLoadingTasksByCategory(
-      String category, String date) async {
+      String category, String date, String day) async {
     try {
+
       emit(LoadingDailyTasksState());
 
       await loadDailyTasksByCategory(category, date).then((allDailyTasks) {
@@ -24,41 +25,21 @@ class DailyTasksCubit extends Cubit<DailyTasksState> {
           dailyTasks.add(v.toMap());
         }
       });
+
+      print(dailyTasks);
+
+      await loadPinnedTasksByCategoryAndDay(category, day).then((allPinnedDailyTasks) async {
+        for (var v in allPinnedDailyTasks) {
+          int? mainTaskId = v.mainTaskId;
+          var res = await showTaskByDayAndId(mainTaskId!);
+          dailyTasks.add(res.toMap());
+        }
+      });
+      print(dailyTasks);
+
       emit(LoadedDailyTasksState());
     } catch (e) {
       emit(ErrorLoadingDailyTasksState(e.toString()));
-    }
-  }
-
-  Future<List<DailyTaskModel>> loadDailyTasksByCategory(
-      String category, String date) async {
-    final res = await taskRepoImp.loadDailyTasksByCategory(category, date);
-    return res;
-  }
-
-  Future<void> toggleDone(MakeTaskDoneModel makeItDone, int taskId) async {
-    try {
-      await taskRepoImp.toggleDone(makeItDone, taskId);
-      var index = dailyTasks.indexWhere((element) => element['id'] == taskId);
-
-      if (dailyTasks[index]['done'] == 1){
-        dailyTasks[index]['done'] = 0;
-        emit(UnMakeTaskDoneState());
-      }else {
-        dailyTasks[index]['done'] = 1;
-        emit(MakeTaskDoneState());
-      }
-    } catch (e) {
-      emit(ErrorMakeTaskDoneState(e.toString()));
-    }
-  }
-
-  Future<void> togglePinned(TogglePinnedModel togglePinned, int taskId) async {
-    try {
-      await taskRepoImp.togglePinned(togglePinned, taskId);
-      emit(PinTaskState());
-    } catch (e) {
-      emit(ErrorPinTaskState(e.toString()));
     }
   }
 
@@ -86,4 +67,56 @@ class DailyTasksCubit extends Cubit<DailyTasksState> {
       emit(ErrorDeleteTaskState(e.toString()));
     }
   }
+
+  Future<void> toggleDone(MakeTaskDoneModel makeItDone, int taskId) async {
+    try {
+      await taskRepoImp.toggleDone(makeItDone, taskId);
+      var index = dailyTasks.indexWhere((element) => element['id'] == taskId);
+
+      if (dailyTasks[index]['done'] == 1){
+        dailyTasks[index]['done'] = 0;
+        emit(UnMakeTaskDoneState());
+      }else {
+        dailyTasks[index]['done'] = 1;
+        emit(MakeTaskDoneState());
+      }
+    } catch (e) {
+      emit(ErrorMakeTaskDoneState(e.toString()));
+    }
+  }
+
+  Future<List<DailyTaskModel>> loadDailyTasksByCategory(
+      String category, String date) async {
+    final res = await taskRepoImp.loadDailyTasksByCategory(category, date);
+    return res;
+  }
+
+  // Pinned tasks
+  Future<List<TaskDaysModel>> loadPinnedTasksByCategoryAndDay(String category, String day) async {
+    final res = await taskRepoImp.loadPinnedTasksByCategoryAndDay(category, day);
+    return res;
+  }
+
+  Future<DailyTaskModel> showTaskByDayAndId(int id) async {
+    final res = await taskRepoImp.showTaskByDayAndId(id);
+    return res;
+  }
+
+  Future<void> toggleDoneByDay(MakeTaskDoneByDayModel makeItDone, String day, int taskId) async {
+    try {
+      await taskRepoImp.toggleDone(makeItDone, taskId);
+      var index = dailyTasks.indexWhere((element) => element['id'] == taskId);
+
+      if (dailyTasks[index]['done'] == 1){
+        dailyTasks[index]['done'] = 0;
+        emit(UnMakeTaskDoneState());
+      }else {
+        dailyTasks[index]['done'] = 1;
+        emit(MakeTaskDoneState());
+      }
+    } catch (e) {
+      emit(ErrorMakeTaskDoneState(e.toString()));
+    }
+  }
+
 }

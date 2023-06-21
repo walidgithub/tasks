@@ -1,5 +1,6 @@
 import 'package:countup/countup.dart';
 import 'package:date_picker_timeline/date_picker_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
@@ -32,18 +33,24 @@ class _HomePageViewState extends State<HomePageView> {
   Set<String> dailyCategories = {};
 
   List<int> itemsCount = [];
+  List<int> pinnedItemsCount = [];
   List<double> categoryPercent = [];
 
   double totalPercent = 0.0;
 
   DateTime today = DateTime.now();
   String searchByToday = '';
+  String searchByDayOfWeek = '';
 
   @override
   void initState() {
     String originalDate =
         DateTime.parse(today.toString().split(" ")[0]).toString();
     searchByToday = originalDate.replaceFirst(RegExp(' '), 'T');
+
+    String dayOfToday = DateFormat('EEEE').format(today);
+    searchByDayOfWeek = dayOfToday.substring(0, 3);
+
     super.initState();
   }
 
@@ -77,6 +84,7 @@ class _HomePageViewState extends State<HomePageView> {
         } else if (state is LoadedCategoriesState) {
           dailyCategories = HomeCubit.get(context).categories;
           itemsCount = HomeCubit.get(context).itemsCount;
+          pinnedItemsCount = HomeCubit.get(context).pinnedItemsCount;
           categoryPercent = HomeCubit.get(context).categoryPercent;
         } else if (state is LoadHomePercentState) {
           totalPercent = HomeCubit.get(context).totalPercent;
@@ -214,7 +222,15 @@ class _HomePageViewState extends State<HomePageView> {
                               .toString();
                       searchByDay = originalDate.replaceFirst(RegExp(' '), 'T');
 
-                      HomeCubit.get(context).loadTasksCategories(searchByDay);
+                      searchByToday = searchByDay;
+
+                      String dayOfToday = DateFormat('EEEE').format(otherDate);
+                      String subOfDayOfToday = dayOfToday.substring(0, 3);
+
+                      searchByDayOfWeek = subOfDayOfToday;
+
+                      HomeCubit.get(context)
+                          .loadTasksCategories(searchByDay, subOfDayOfToday);
                     });
                   },
                 ),
@@ -242,9 +258,10 @@ class _HomePageViewState extends State<HomePageView> {
                     children: List.generate(dailyCategories.length, (index) {
                       return Category(
                         tasksDate: searchByToday,
-                        itemsCount: itemsCount[index],
+                        itemsCount: itemsCount[index] + pinnedItemsCount[index],
                         name: dailyCategories.elementAt(index),
                         percent: categoryPercent[index],
+                        tasksDay: searchByDayOfWeek,
                       );
                     })))
           ],

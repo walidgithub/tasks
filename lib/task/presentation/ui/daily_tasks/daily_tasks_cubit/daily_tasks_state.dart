@@ -32,14 +32,6 @@ class ErrorDeleteTaskState extends DailyTasksState{
   ErrorDeleteTaskState(this.errorText);
 }
 
-class PinTaskState extends DailyTasksState{}
-class UnPinTaskState extends DailyTasksState{}
-class ErrorPinTaskState extends DailyTasksState{
-  String errorText;
-
-  ErrorPinTaskState(this.errorText);
-}
-
 class MakeTaskDoneState extends DailyTasksState{}
 class UnMakeTaskDoneState extends DailyTasksState{}
 class ErrorMakeTaskDoneState extends DailyTasksState{
